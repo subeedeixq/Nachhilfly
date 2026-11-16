@@ -6,13 +6,13 @@ Phasen 3 und 7 (Listen, Flows) können parallel zu 4–6 laufen, sobald Phase 2 
 
 ## Jetzt
 - Stand: Starter-Kit angelegt (15.11.2026), ergänzt am selben Tag: Ort frei (D-25), keine Klassengrenze (D-26), Gruppennachhilfe (D-27). Nächste Aufgabe: T-0.1.
-- Notizen der letzten Sitzung: –
+- Notizen der letzten Sitzung: T-0.2 erledigt (16.11.2026): Mac, Node 26.13.1, SPFx 1.24.1, CLI über npx, doctor grün, SPFx-Skill im Repo.
 
 ---
 
 ## Phase 0 – Vorbereitung (Subi + IT, ohne Code)
 - [ ] **T-0.1** 🧑🤖 Offene Punkte durchgehen. Lesen: ENTSCHEIDUNGEN.md §1, §3. Tun: Claude fragt Subi Punkt für Punkt, was bei den Freigaben schon entschieden wurde, und trägt Ergebnisse ein. Fertig wenn: jede O-Zeile hat ein Ergebnis oder „offen, Standard gilt“.
-- [ ] **T-0.2** 🧑🤖 Computer einrichten. Lesen: SETUP.md §1–§5. Fertig wenn: `m365 spfx doctor` ohne Fehler, `claude` startet im Projekt, Git-Repo auf GitHub (privat) mit erstem Commit.
+- [x] **T-0.2** 🧑🤖 Computer einrichten. Lesen: SETUP.md §1–§5. Fertig wenn: `m365 spfx doctor` ohne Fehler, `claude` startet im Projekt, Git-Repo auf GitHub (privat) mit erstem Commit.
 - [ ] **T-0.3** 🏫 Testseite, App-Katalog, Gruppen, Testkonten, Funktionskonto. Lesen: SETUP.md §6. Tun: Claude schreibt Subi eine kurze Mail an Frau Hilchentwort mit der Checkliste. Fertig wenn: Testseiten-Adresse in `app/src/config.ts` (nach T-1.1) bzw. hier notiert, Testkonten vorhanden.
 - [ ] **T-0.4** 🧑 Auf der Testseite eine leere Seite „App“ anlegen (dort kommt später der Webpart drauf) und prüfen, dass Subi Dateien in den App-Katalog der Testseite hochladen darf.
 - [ ] **T-0.5** 🤖 Logo vorbereiten: aus `referenz/schullogo.jpg` Teams-Symbole (192 × 192 farbig, 32 × 32 Umriss weiß/transparent) und App-Logo erzeugen. Wenn die Datei zu klein ist (sie ist 200 × 138 px): Subi um SVG/große PNG bitten (O-14). Fertig wenn: Dateien liegen bereit für T-1.1.

@@ -23,7 +23,7 @@
 | Was | Wahl | Hinweis |
 |---|---|---|
 | Framework | **SPFx 1.24** (Stand Nov. 2026), Webpart, Vorlage React | Toolchain **Heft** (seit 1.22). Neue CLI `spfx create` kommt mit 1.25, bis dahin Yeoman-Generator. |
-| Node.js | 22 LTS oder 24 LTS (beide von SPFx 1.24 unterstützt, 26 auch) | `.nvmrc` mit der genutzten Version anlegen. `m365 spfx doctor` prüft. |
+| Node.js | 26 (von SPFx 1.24 unterstützt, ebenso 22 und 24) | `.nvmrc` mit der genutzten Version anlegen. `m365 spfx doctor` prüft. |
 | Sprache | TypeScript (Version, die der Generator vorgibt) | `strict: true` |
 | UI | React (Version vom Generator) | Keine weitere UI-Bibliothek. Kein Fluent UI für Sichtbares (D-12). |
 | SharePoint-Zugriff | **PnPjs** (`@pnp/sp`, aktuelle Hauptversion) | nur in `services/SharePointService.ts` |
