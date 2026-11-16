@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npm install)",
+      "Bash(npm ci)",
+      "Bash(heft:*)",
+      "Bash(npx heft:*)",
+      "Bash(node:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npx -p @pnp/cli-microsoft365@latest m365 spfx doctor:*)",
+      "Bash(npx playwright:*)"
+    ],
+    "deny": [
+      "Edit(referenz/**)",
+      "Write(referenz/**)",
+      "Read(.env)",
+      "Read(**/.env)"
+    ]
+  }
+}

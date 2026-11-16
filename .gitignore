@@ -1,0 +1,25 @@
+# Abhängigkeiten und Build
+node_modules/
+app/lib/
+app/temp/
+app/dist/
+app/release/
+app/sharepoint/solution/
+app/harness/dist/
+app/tests/ui/shots/
+app/test-results/
+app/playwright-report/
+*.sppkg
+*.tsbuildinfo
+.heft/
+
+# Flow-Exporte (enthalten echte Schuladressen, liegen im Team-Ordner)
+flows/export/*.zip
+
+# Lokales
+.env
+.env.*
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+*.log

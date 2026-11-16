@@ -1,0 +1,1673 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>nachhilfly Prototyp v2</title>
+<style>
+/* nachhilfly Design-Tokens (aus DESIGN.md). Nur helles Design. */
+:root {
+  --nh-blue: #4A5BA6;
+  --nh-blue-ink: #2E3B78;
+  --nh-blue-tint: #EEF1FA;
+  --nh-bg: #FFFFFF;
+  --nh-bg-grouped: #F2F3F7;
+  --nh-fill: #F2F3F7;
+  --nh-fill-strong: #E4E6EC;
+  --nh-text: #111827;
+  --nh-text-2: #6B7080;
+  --nh-text-off: #9A9FAD;
+  --nh-sep: #D5D8E0;
+  --nh-chip-line: #D5DBEA;
+  --nh-ok: #1E6B44;
+  --nh-ok-tint: #E3F2E9;
+  --nh-wait: #8A5300;
+  --nh-wait-tint: #FBF0DD;
+  --nh-danger: #B3261E;
+  --nh-danger-tint: #FBE9E7;
+  --nh-badge: #D93B30;
+  --nh-sub-ma: #4A5BA6;
+  --nh-sub-en: #B4532A;
+  --nh-sub-de: #2F7D5B;
+  --nh-sub-bio: #6F4FA0;
+  --nh-sub-ph: #0E6F86;
+  --nh-sub-ch: #8A4B12;
+  --nh-sub-fr: #A23B5B;
+  --nh-font: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", system-ui, Roboto, sans-serif;
+  --nh-ease: cubic-bezier(.32, .72, 0, 1);
+  /* Testumgebung um das Handy herum */
+  --stage-bg: #E7E9EF;
+  --stage-ink: #2A2F3D;
+  color-scheme: light;
+}
+
+/* ---------- Testumgebung (nicht Teil der App) ---------- */
+html, body { height: 100%; }
+body { margin: 0; background: var(--stage-bg); color: var(--stage-ink); font-family: var(--nh-font); -webkit-font-smoothing: antialiased; }
+.stage { min-height: 100%; display: flex; gap: 40px; align-items: center; justify-content: center; padding-block: 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); box-sizing: border-box; }
+.panel { width: 280px; display: flex; flex-direction: column; gap: 14px; }
+.panel h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.panel p { margin: 0; font-size: 14px; line-height: 1.45; color: #545A6B; }
+.roles { display: flex; flex-direction: column; gap: 6px; }
+.role { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; text-align: left; padding: 8px 10px; border: 0; border-radius: 12px; background: transparent; font: inherit; color: inherit; cursor: pointer; }
+.role:hover { background: rgba(255,255,255,.6); }
+.role[aria-pressed="true"] { background: #FFFFFF; box-shadow: 0 1px 3px rgba(20,30,70,.12); }
+.role b { display: block; font-size: 14px; font-weight: 600; }
+.role span { font-size: 12.5px; color: #545A6B; }
+.role .av { width: 34px; height: 34px; font-size: 12px; }
+.reset { align-self: flex-start; border: 0; background: none; font: inherit; font-size: 13px; color: var(--nh-blue-ink); text-decoration: underline; cursor: pointer; padding: 4px 0; }
+.mobilebar { display: none; }
+.phone { width: 390px; height: 844px; max-height: calc(100vh - 48px); border-radius: 46px; background: #0E1018; padding: 10px; box-shadow: 0 30px 80px rgba(20,30,70,.25); flex: none; }
+.screen { position: relative; width: 100%; height: 100%; border-radius: 37px; overflow: hidden; background: var(--nh-bg); color: var(--nh-text); isolation: isolate; }
+@media (max-width: 760px) {
+  .stage { padding: 0; display: block; }
+  .panel { display: none; }
+  .phone { width: 100%; height: 100dvh; max-height: none; border-radius: 0; padding: 0; box-shadow: none; }
+  .screen { border-radius: 0; }
+  .mobilebar { display: flex; position: fixed; z-index: 50; right: 12px; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ---------- App ---------- */
+.screen, .screen button, .screen input, .screen textarea { font-family: var(--nh-font); }
+.screen *, .screen *::before, .screen *::after { box-sizing: border-box; }
+.screen ::selection { background: #C9D1EE; }
+.screen :focus-visible { outline: 2px solid var(--nh-blue); outline-offset: 2px; }
+.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.ic.s { width: 16px; height: 16px; }
+.ic.xs { width: 14px; height: 14px; }
+
+/* Navigationsleiste oben */
+.nb { position: absolute; top: 0; left: 0; right: 0; height: 52px; z-index: 4; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 16px; background: rgba(255,255,255,0); box-shadow: 0 .5px 0 rgba(0,0,0,0); transition: background-color .25s ease-out, box-shadow .25s ease-out; }
+.nb.cmp { background: rgba(255,255,255,.86); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 .5px 0 rgba(0,0,0,.18); }
+.nb.grey { background: rgba(242,243,247,0); }
+.nb.grey.cmp { background: rgba(242,243,247,.86); }
+.ctitle { position: absolute; left: 50%; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform: translate(-50%, 4px); opacity: 0; font-size: 17px; font-weight: 600; transition: opacity .2s ease-out, transform .35s var(--nh-ease); pointer-events: none; }
+.cmp .ctitle { opacity: 1; transform: translate(-50%, 0); }
+.logo { width: 34px; height: 28px; border-radius: 6px; background: #FFFFFF; box-shadow: 0 0 0 1px #D9DCE5; color: var(--nh-blue); font-size: 7.5px; font-weight: 700; display: grid; place-items: center; text-align: center; line-height: 1.1; flex: none; overflow: hidden; }
+.logo img { width: 100%; height: 100%; object-fit: contain; background: #FFFFFF; }
+.logo.has-img { width: 40px; height: 28px; box-shadow: none; }
+.nbtn { width: 44px; height: 44px; border: 0; border-radius: 22px; background: transparent; color: var(--nh-blue); display: grid; place-items: center; cursor: pointer; }
+.nbtn:active { background: var(--nh-fill); }
+.nb .sp { flex: 1; }
+.rolebtn { height: 32px; padding: 0 10px 0 4px; border: 0; border-radius: 16px; background: var(--nh-fill); display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 13px; font-weight: 600; color: var(--nh-text); cursor: pointer; }
+.rolebtn .av { width: 24px; height: 24px; font-size: 10px; }
+
+/* Scrollbereich */
+.sc { position: absolute; inset: 0; overflow-y: auto; padding: 52px 0 110px; box-sizing: border-box; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.sc::-webkit-scrollbar { display: none; }
+.sc.notab { padding-bottom: 40px; }
+.sc.grey { background: var(--nh-bg-grouped); }
+.lt { margin: 0 16px 4px; font-size: 34px; font-weight: 700; letter-spacing: -.022em; line-height: 41px; text-wrap: balance; }
+.lsub { margin: 0 16px 10px; font-size: 15px; color: var(--nh-text-2); line-height: 1.4; }
+.sh { margin: 26px 16px 0; padding-bottom: 8px; font-size: 13px; font-weight: 400; color: var(--nh-text-2); border-bottom: .5px solid var(--nh-sep); }
+.sh.flat { border-bottom: 0; padding-bottom: 7px; }
+.foot { margin: 10px 16px 0; font-size: 13px; color: var(--nh-text-2); line-height: 1.45; }
+
+/* Hinweisband (Ferien, eingeschränkt) */
+.note { margin: 6px 16px 4px; padding: 12px 14px; border-radius: 12px; background: var(--nh-blue-tint); color: var(--nh-blue-ink); font-size: 15px; line-height: 1.4; display: flex; gap: 10px; align-items: flex-start; }
+.note.wait { background: var(--nh-wait-tint); color: #5E3A00; }
+.note.ok { background: var(--nh-ok-tint); color: #154D31; }
+.note.danger { background: var(--nh-danger-tint); color: #7A1A14; }
+.note b { font-weight: 600; }
+.note .ic { margin-top: 1px; }
+
+/* Suche & Filter */
+.search { display: flex; align-items: center; gap: 8px; height: 44px; margin: 6px 16px 0; padding: 0 12px; border-radius: 12px; background: var(--nh-fill); color: var(--nh-text-2); }
+.search input { border: 0; background: transparent; font-size: 17px; color: var(--nh-text); flex: 1; min-width: 0; outline: none; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px 12px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chips.wrap { flex-wrap: wrap; overflow: visible; padding: 0; }
+.chip { height: 34px; padding: 0 13px; border-radius: 17px; border: 0; background: #FFFFFF; box-shadow: inset 0 0 0 1px var(--nh-chip-line); font-size: 15px; color: var(--nh-text); display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; flex: none; cursor: pointer; transition: background-color .2s ease-out, box-shadow .2s ease-out, transform .15s ease-out; }
+.chip:active { transform: scale(.96); }
+.chip.on { background: var(--nh-blue-tint); box-shadow: inset 0 0 0 1.5px var(--nh-blue); color: var(--nh-blue-ink); font-weight: 600; }
+.chip:disabled { color: var(--nh-text-off); cursor: default; }
+
+/* Listenzeile mit Fach-Banner */
+.row { width: 100%; display: grid; grid-template-columns: 40px 40px minmax(0, 1fr) auto 14px; gap: 12px; align-items: start; padding: 14px 16px 14px 0; border: 0; background: #FFFFFF; color: inherit; text-align: left; position: relative; cursor: pointer; transition: background-color .15s ease-out; font-size: 17px; }
+.row.nochev { grid-template-columns: 40px 40px minmax(0, 1fr) auto; }
+.row:active { background: var(--nh-fill); }
+.row.static { cursor: default; }
+.row.static:active { background: #FFFFFF; }
+.row::after { content: ""; position: absolute; left: 104px; right: 0; bottom: 0; height: .5px; background: var(--nh-sep); }
+.row.dim { color: var(--nh-text-off); }
+.row.dim .ban { opacity: .45; }
+.row .t1 { font-size: 17px; font-weight: 600; }
+.row .t2 { font-size: 15px; color: var(--nh-text-2); margin-top: 3px; line-height: 1.35; }
+.row .t3 { font-size: 15px; margin-top: 4px; line-height: 1.35; }
+.row .r1 { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.row .r2 { font-size: 13px; margin-top: 3px; text-align: right; }
+.row .chev { color: #B4B8C4; margin-top: 4px; }
+.ban { min-height: 64px; align-self: stretch; border-radius: 0 6px 6px 0; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: flex-start; justify-content: center; padding-top: 10px; box-sizing: border-box; letter-spacing: .02em; }
+.av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; font-size: 15px; flex: none; }
+.av.l { width: 76px; height: 76px; font-size: 26px; }
+.acts { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+/* einfache Zeile (iOS-Liste) */
+.it { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 16px; position: relative; font-size: 17px; background: #FFFFFF; }
+.it::after { content: ""; position: absolute; left: 16px; right: 0; bottom: 0; height: .5px; background: var(--nh-sep); }
+.it .k { flex: 1 1 auto; min-width: min-content; }
+.it .v { flex: 0 1 auto; min-width: 0; color: var(--nh-text-2); text-align: right; font-variant-numeric: tabular-nums; }
+button.it { width: 100%; border: 0; text-align: left; color: inherit; cursor: pointer; }
+button.it:active { background: var(--nh-fill); }
+.it.link { color: var(--nh-blue); }
+.it.red { color: var(--nh-danger); }
+.it.add { padding-left: 116px; color: var(--nh-blue); }
+
+/* Gruppen (in Blättern / grauen Seiten) */
+.grp { margin: 0 16px; background: #FFFFFF; border-radius: 12px; overflow: hidden; }
+.grp .it:last-child::after, .grp .row:last-child::after { display: none; }
+.grp .it::after { left: 16px; }
+.grp.pad { padding: 12px 16px; font-size: 17px; line-height: 1.42; }
+.gh { margin: 22px 16px 7px 32px; font-size: 13px; font-weight: 400; color: var(--nh-text-2); }
+.gf { margin: 7px 32px 0; font-size: 13px; color: var(--nh-text-2); line-height: 1.4; }
+
+/* Knöpfe */
+.btn { height: 50px; border: 0; border-radius: 12px; background: var(--nh-blue); color: #FFFFFF; font-size: 17px; font-weight: 600; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: transform .15s ease-out, opacity .15s; }
+.btn:active { transform: scale(.97); opacity: .92; }
+.btn.sec { background: var(--nh-fill); color: var(--nh-text); }
+.btn.red { background: var(--nh-danger-tint); color: var(--nh-danger); }
+.btn:disabled { background: var(--nh-fill-strong); color: var(--nh-text-off); cursor: default; transform: none; }
+.pb { height: 36px; padding: 0 16px; border: 0; border-radius: 18px; font-size: 15px; font-weight: 600; cursor: pointer; background: var(--nh-blue); color: #FFFFFF; transition: transform .15s ease-out; }
+.pb:active { transform: scale(.96); }
+.pb.sec { background: var(--nh-fill); color: var(--nh-text); font-weight: 500; }
+.pb.red { background: var(--nh-danger-tint); color: var(--nh-danger); }
+.pb:disabled { background: var(--nh-fill); color: var(--nh-text-off); cursor: default; }
+.tbtn { height: 44px; border: 0; background: transparent; font-size: 17px; color: var(--nh-blue); cursor: pointer; padding: 0 8px; }
+.tbtn.b { font-weight: 600; }
+.tbtn.grey { color: var(--nh-text-2); font-size: 15px; }
+.bwrap { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Status-Pillen */
+.pill { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 11px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.pill.ok { background: var(--nh-ok-tint); color: var(--nh-ok); }
+.pill.wait { background: var(--nh-wait-tint); color: var(--nh-wait); }
+.pill.red { background: var(--nh-danger-tint); color: var(--nh-danger); }
+.pill.blue { background: var(--nh-blue-tint); color: var(--nh-blue-ink); }
+.pill.grey { background: var(--nh-fill-strong); color: #4B5163; }
+
+/* Schalter, Segmente, Häkchen */
+.sw { width: 51px; height: 31px; border-radius: 16px; border: 0; padding: 0; background: var(--nh-fill-strong); position: relative; cursor: pointer; transition: background-color .25s ease-out; flex: none; }
+.sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,.18), 0 0 0 .5px rgba(0,0,0,.04); transition: transform .35s var(--nh-ease); }
+.sw[aria-checked="true"] { background: var(--nh-blue); }
+.sw[aria-checked="true"]::after { transform: translateX(20px); }
+.sg { display: flex; padding: 2px; border-radius: 9px; background: var(--nh-fill-strong); margin: 0 16px; }
+.sg button { flex: 1; min-width: 0; height: 32px; border: 0; border-radius: 7px; background: transparent; font-size: 13px; font-weight: 500; color: var(--nh-text); cursor: pointer; transition: background-color .2s ease-out, box-shadow .2s ease-out; white-space: nowrap; }
+.sg button[aria-pressed="true"] { background: #FFFFFF; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.04); }
+.chk { width: 24px; height: 24px; border-radius: 12px; display: grid; place-items: center; flex: none; margin-top: 8px; }
+.chk.y { background: var(--nh-ok); color: #FFFFFF; }
+.chk.n { box-shadow: inset 0 0 0 1.5px #C9CCD5; }
+.cb { width: 26px; height: 26px; border-radius: 13px; border: 0; box-shadow: inset 0 0 0 1.5px #B9BECB; background: #FFFFFF; display: grid; place-items: center; color: #FFFFFF; cursor: pointer; flex: none; transition: background-color .2s ease-out, box-shadow .2s ease-out; }
+.cb[aria-checked="true"] { background: var(--nh-blue); box-shadow: none; }
+.bar { display: flex; gap: 4px; }
+.bar span { width: 20px; height: 7px; border-radius: 4px; background: var(--nh-fill-strong); }
+.bar span.f { background: var(--nh-blue); }
+.stepper { display: inline-flex; align-items: center; border-radius: 9px; background: var(--nh-fill-strong); }
+.stepper button { width: 44px; height: 32px; border: 0; background: transparent; font-size: 20px; color: var(--nh-text); cursor: pointer; }
+.stepper button:disabled { color: var(--nh-text-off); }
+.stepper span { min-width: 34px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Eingaben */
+.field { margin: 0 16px; background: #FFFFFF; border-radius: 12px; padding: 10px 16px 12px; }
+.field textarea, .field input { width: 100%; border: 0; outline: none; resize: none; font-size: 17px; line-height: 1.4; color: var(--nh-text); background: transparent; padding: 0; }
+.field .cnt { font-size: 12.5px; color: var(--nh-text-2); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.field.err { box-shadow: inset 0 0 0 1.5px var(--nh-danger); }
+.err-t { margin: 6px 32px 0; font-size: 13px; color: var(--nh-danger); }
+
+/* Tab-Leiste unten */
+.tb { position: absolute; left: 0; right: 0; bottom: 0; height: 82px; z-index: 4; display: flex; background: rgba(249,249,251,.92); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 -.5px 0 rgba(0,0,0,.18); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.tb button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 500; color: var(--nh-text-2); border: 0; background: transparent; padding-top: 8px; position: relative; cursor: pointer; }
+.tb button[aria-current="page"] { color: var(--nh-blue); }
+.badge { position: absolute; top: 4px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: var(--nh-badge); color: #FFFFFF; font-size: 11px; font-weight: 600; display: grid; place-items: center; }
+
+/* Blatt von unten */
+.back { position: absolute; inset: 0; z-index: 10; border: 0; padding: 0; background: rgba(17,24,39,.3); opacity: 0; transition: opacity .35s ease-out; cursor: default; }
+.back.open { opacity: 1; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: calc(100% - 44px); z-index: 11; background: var(--nh-bg-grouped); border-radius: 14px 14px 0 0; box-shadow: 0 -10px 34px rgba(20,30,70,.16); transform: translateY(104%); transition: transform .5s var(--nh-ease); display: flex; flex-direction: column; }
+.sheet.open { transform: translateY(0); }
+.sheet.tall { height: calc(100% - 44px); }
+.shd { display: flex; align-items: center; height: 52px; padding: 0 6px; flex: none; }
+.shd .ttl { flex: 1; text-align: center; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shd .slot { width: 110px; display: flex; }
+.shd .slot.r { justify-content: flex-end; }
+.sin { flex: 1; overflow-y: auto; padding: 0 0 20px; scrollbar-width: none; }
+.sin::-webkit-scrollbar { display: none; }
+.sft { padding: 10px 16px calc(22px + env(safe-area-inset-bottom, 0px)); background: var(--nh-bg-grouped); box-shadow: 0 -.5px 0 rgba(0,0,0,.12); display: flex; flex-direction: column; gap: 8px; flex: none; }
+.phead { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 16px 18px; text-align: center; }
+.phead .n { font-size: 24px; font-weight: 700; letter-spacing: -.015em; margin-top: 8px; }
+.phead .s { font-size: 15px; color: var(--nh-text-2); }
+
+/* Pull-down-Menü */
+.catch { position: absolute; inset: 0; z-index: 20; border: 0; padding: 0; background: transparent; cursor: default; }
+.menu { position: absolute; z-index: 21; width: 240px; max-height: 420px; overflow-y: auto; border-radius: 13px; background: rgba(250,250,252,.95); -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px); box-shadow: 0 10px 40px rgba(20,30,70,.2), 0 0 0 .5px rgba(0,0,0,.12); transform-origin: top left; transform: scale(.88); opacity: 0; transition: transform .32s var(--nh-ease), opacity .18s ease-out; }
+.menu.r { transform-origin: top right; }
+.menu.open { transform: scale(1); opacity: 1; }
+.mi { width: 100%; min-height: 44px; display: grid; grid-template-columns: 22px 1fr; align-items: center; gap: 8px; padding: 0 14px 0 12px; border: 0; background: transparent; font-size: 17px; color: var(--nh-text); text-align: left; position: relative; cursor: pointer; }
+.mi:active { background: rgba(0,0,0,.06); }
+.mi + .mi::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: .5px; background: rgba(0,0,0,.14); }
+.mi .chkm { color: var(--nh-blue); display: grid; place-items: center; }
+
+/* Toast */
+.toast { position: absolute; left: 16px; right: 16px; bottom: 96px; z-index: 30; padding: 12px 14px; border-radius: 14px; background: rgba(28,32,44,.94); color: #FFFFFF; font-size: 15px; line-height: 1.35; display: flex; gap: 10px; align-items: center; box-shadow: 0 8px 30px rgba(10,15,30,.25); transform: translateY(14px); opacity: 0; transition: transform .4s var(--nh-ease), opacity .25s ease-out; pointer-events: none; }
+.toast.open { transform: none; opacity: 1; }
+.toast.notab { bottom: 28px; }
+.spin { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,.35); border-top-color: #FFFFFF; animation: spin .8s linear infinite; flex: none; }
+.spin.dark { border-color: rgba(74,91,166,.25); border-top-color: var(--nh-blue); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Leere Zustände, Schritte */
+.empty { padding: 36px 28px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.empty .e1 { font-size: 17px; font-weight: 600; }
+.empty .e2 { font-size: 15px; color: var(--nh-text-2); line-height: 1.4; }
+.steps { display: flex; gap: 4px; margin: 4px 16px 0; }
+.steps span { flex: 1; height: 4px; border-radius: 2px; background: var(--nh-fill-strong); transition: background-color .3s ease-out; }
+.steps span.f { background: var(--nh-blue); }
+.prog { margin: 0 16px; }
+.pstep { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 10px 0; position: relative; }
+.pstep .dot { width: 28px; height: 28px; border-radius: 14px; display: grid; place-items: center; background: var(--nh-fill-strong); color: var(--nh-text-2); font-size: 13px; font-weight: 700; z-index: 1; }
+.pstep.done .dot { background: var(--nh-ok); color: #FFFFFF; }
+.pstep.now .dot { background: var(--nh-blue); color: #FFFFFF; }
+.pstep:not(:last-child)::before { content: ""; position: absolute; left: 13.5px; top: 38px; bottom: -10px; width: 1px; background: var(--nh-sep); }
+.pstep .a { font-size: 17px; font-weight: 600; }
+.pstep .b { font-size: 15px; color: var(--nh-text-2); margin-top: 2px; line-height: 1.4; }
+.grid5 { display: grid; grid-template-columns: 56px repeat(5, minmax(0, 1fr)); gap: 6px; margin: 0 16px; align-items: center; }
+.grid5 .h { font-size: 12.5px; font-weight: 600; color: var(--nh-text-2); text-align: center; }
+.grid5 .tl { font-size: 12.5px; color: var(--nh-text-2); font-variant-numeric: tabular-nums; }
+.tslot { height: 36px; border: 0; border-radius: 9px; background: #FFFFFF; box-shadow: inset 0 0 0 1px var(--nh-chip-line); cursor: pointer; transition: background-color .15s ease-out; }
+.tslot[aria-pressed="true"] { background: var(--nh-blue); box-shadow: none; }
+.pause-screen { position: absolute; inset: 0; z-index: 40; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 32px; text-align: center; }
+.in { animation: pop .45s var(--nh-ease) both; }
+@keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.welcome-pts { display: flex; flex-direction: column; gap: 18px; margin: 18px 24px 0; }
+.wp { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; }
+.wp .ico { width: 44px; height: 44px; border-radius: 12px; background: var(--nh-blue-tint); color: var(--nh-blue); display: grid; place-items: center; }
+.wp b { display: block; font-size: 17px; font-weight: 600; }
+.wp span { font-size: 15px; color: var(--nh-text-2); line-height: 1.4; }
+.avpick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 0 16px; padding: 16px; background: #FFFFFF; border-radius: 12px; justify-items: center; }
+.avpick button { border: 0; padding: 0; background: transparent; border-radius: 50%; cursor: pointer; }
+.avpick button[aria-pressed="true"] .av { box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 5.5px var(--nh-blue); }
+.avpick .av { width: 56px; height: 56px; font-size: 19px; }
+.kodex { margin: 0 16px; padding: 4px 16px; background: #FFFFFF; border-radius: 12px; }
+.kodex li { padding: 10px 0; font-size: 16px; line-height: 1.4; border-bottom: .5px solid var(--nh-sep); }
+.kodex li:last-child { border-bottom: 0; }
+.kodex ul { margin: 0; padding: 0; list-style: none; }
+.cbrow { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; background: #FFFFFF; font-size: 16px; line-height: 1.4; position: relative; }
+.cbrow::after { content: ""; position: absolute; left: 54px; right: 0; bottom: 0; height: .5px; background: var(--nh-sep); }
+.cbrow:last-child::after { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .screen *, .screen *::before, .screen *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+</style>
+
+<div class="stage">
+  <aside class="panel" aria-label="Testmodus">
+    <h1>nachhilfly · Prototyp v2</h1>
+    <p>Testmodus: Wähle, als wer du die App öffnest. Was du in einer Rolle tust, sehen die anderen Rollen sofort.</p>
+    <div class="roles" id="roles"></div>
+    <button class="reset" data-act="reset">Alles zurücksetzen</button>
+    <p>Alle Namen und Daten sind erfunden.</p>
+  </aside>
+  <div class="phone"><div class="screen" id="screen"></div></div>
+  <div class="mobilebar"><label class="sr" for="roleSelect" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Rolle wählen</label><select id="roleSelect" style="height:36px;border-radius:18px;border:0;padding:0 12px;background:#1C202C;color:#FFFFFF;font:600 13px var(--nh-font);box-shadow:0 6px 20px rgba(10,15,30,.25)"></select></div>
+</div>
+
+<script>
+/* js/config.js */
+/* Einstellungen der Testversion. logo: Pfad zum Schullogo oder null (dann Platzhalter). */
+window.NH = window.NH || {};
+NH.config = { logo: null };
+
+/* js/data.js */
+/* nachhilfly Prototyp v2 – Testdaten.
+   Alles erfunden. In der echten App kommen diese Daten aus SharePoint-Listen. */
+window.NH = window.NH || {};
+
+NH.SUBJECTS = {
+  Ma: { name: 'Mathe', color: 'var(--nh-sub-ma)' },
+  En: { name: 'Englisch', color: 'var(--nh-sub-en)' },
+  De: { name: 'Deutsch', color: 'var(--nh-sub-de)' },
+  Bio: { name: 'Biologie', color: 'var(--nh-sub-bio)' },
+  Ph: { name: 'Physik', color: 'var(--nh-sub-ph)' },
+  Ch: { name: 'Chemie', color: 'var(--nh-sub-ch)' },
+  Fr: { name: 'Französisch', color: 'var(--nh-sub-fr)' }
+};
+
+NH.AVATARS = [
+  { bg: '#FCE6C9', fg: '#7A4300' }, { bg: '#DCEFE6', fg: '#1E5A3F' },
+  { bg: '#E5E0F5', fg: '#4B3685' }, { bg: '#FFE3E0', fg: '#8A2B20' },
+  { bg: '#D9ECF7', fg: '#1D4F6E' }, { bg: '#FDE8F1', fg: '#8A2155' },
+  { bg: '#DDF1F4', fg: '#0E4F5F' }, { bg: '#E3E7EE', fg: '#3A4256' }
+];
+
+NH.ANLIEGEN = ['Grundlagen', 'Klassenarbeit', 'Hausaufgaben', 'Lernen lernen'];
+NH.TAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr'];
+NH.ZEITEN = ['13–14', '14–15', '15–16', '16–17', '17–18'];
+
+NH.METHODS = [
+  ['Erst fragen, dann erklären', 'Lass dir zeigen, wo es hakt, bevor du loslegst.'],
+  ['Selbst rechnen lassen', 'Dein Schüler hält den Stift, du gibst Tipps.'],
+  ['Laut denken', 'Lass erklären, wie gedacht wird. So findest du Denkfehler.'],
+  ['Kleine Schritte', 'Eine Sache pro Stunde richtig verstehen ist besser als drei halb.'],
+  ['Beispiele aus dem Alltag', 'Geld, Sport, Handy: Alltag macht Abstraktes greifbar.'],
+  ['Wiederholen mit Abstand', 'Den Stoff der letzten Stunde kurz wiederholen.'],
+  ['Fehler sind Hinweise', 'Ein Fehler zeigt, was als Nächstes dran ist.'],
+  ['Zusammenfassen lassen', 'Am Ende erklärt dein Schüler dir das Thema.'],
+  ['Pausen einplanen', 'Nach 25 Minuten kurz durchatmen.']
+];
+
+NH.seed = function () {
+  return {
+    today: 'Di, 3.11.',
+    settings: { ferien: false, pause: false, frist: 3, onlineBis: 19 },
+    users: {
+      nils: { id: 'nils', first: 'Nils', name: 'Nils H.', klasse: 8, av: 4, registered: false, consent: false, roles: [] },
+      lea: { id: 'lea', first: 'Lea', name: 'Lea S.', klasse: 6, av: 3, registered: true, consent: false, roles: ['nehmend'] },
+      ben: { id: 'ben', first: 'Ben', name: 'Ben K.', klasse: 7, av: 4, registered: true, consent: true, roles: ['nehmend'] },
+      paul: { id: 'paul', first: 'Paul', name: 'Paul W.', klasse: 9, av: 6, registered: true, consent: true, roles: ['bewerber'] },
+      jonas: { id: 'jonas', first: 'Jonas', name: 'Jonas K.', klasse: 10, av: 0, registered: true, consent: true, roles: ['tutor'] },
+      mira: { id: 'mira', first: 'Mira', name: 'Mira S.', klasse: 'J1', av: 1, registered: true, consent: true, roles: ['leitung', 'tutor'] },
+      keller: { id: 'keller', first: 'Frau Keller', name: 'Frau Keller', klasse: null, av: 7, registered: true, consent: true, roles: ['lehrkraft'] },
+      /* weitere Personen (keine Test-Rollen) */
+      emil: { id: 'emil', first: 'Emil', name: 'Emil T.', klasse: 9, av: 2 },
+      lina: { id: 'lina', first: 'Lina', name: 'Lina R.', klasse: 'J1', av: 3 },
+      noah: { id: 'noah', first: 'Noah', name: 'Noah B.', klasse: 11, av: 4 },
+      sara: { id: 'sara', first: 'Sara', name: 'Sara K.', klasse: 10, av: 5 },
+      can: { id: 'can', first: 'Can', name: 'Can Ö.', klasse: 'J2', av: 6 },
+      hanna: { id: 'hanna', first: 'Hanna', name: 'Hanna W.', klasse: 'J2', av: 7 },
+      mia: { id: 'mia', first: 'Mia', name: 'Mia L.', klasse: 5, av: 0 },
+      tom: { id: 'tom', first: 'Tom', name: 'Tom B.', klasse: 6, av: 1 },
+      emma: { id: 'emma', first: 'Emma', name: 'Emma F.', klasse: 8, av: 5 },
+      tim: { id: 'tim', first: 'Tim', name: 'Tim R.', klasse: 10, av: 2 },
+      finn: { id: 'finn', first: 'Finn', name: 'Finn M.', klasse: 5, av: 6 },
+      max: { id: 'max', first: 'Max', name: 'Max D.', klasse: 7, av: 7 }
+    },
+    tutors: [
+      { id: 'jonas', s: 'Ma', subjects: ['Ma', 'Ph'], stufen: [5, 8], ort: ['vor Ort'], times: [['Mo', '15–16'], ['Mi', '16–17'], ['Do', '14–15']], price: 10, cap: 3, state: 'aktiv', art: ['Grundlagen', 'Klassenarbeit'], bio: 'Ich erkläre so lange, bis es klick macht. Am liebsten Brüche, Gleichungen und Geometrie.', badges: ['10 Stunden geholfen'], hours: 14 },
+      { id: 'mira', s: 'En', subjects: ['En', 'Fr'], stufen: [5, 10], ort: ['online'], times: [['Di', '17–18'], ['Do', '16–17']], price: 12, cap: 2, state: 'aktiv', art: ['Klassenarbeit', 'Lernen lernen'], bio: 'Vokabeln, Grammatik und keine Angst mehr vorm Sprechen.', badges: [], hours: 6 },
+      { id: 'emil', s: 'De', subjects: ['De', 'Ma'], stufen: [5, 7], ort: ['vor Ort'], times: [['Mo', '13–14'], ['Fr', '13–14']], price: 0, cap: 3, state: 'aktiv', art: ['Hausaufgaben'], bio: 'Aufsätze planen, Texte verstehen, Rechtschreibung üben. Ganz entspannt.', badges: [], hours: 3 },
+      { id: 'lina', s: 'Ma', subjects: ['Ma', 'En'], stufen: [7, 10], ort: ['vor Ort', 'online'], times: [['Di', '16–17'], ['Mi', '15–16']], price: 12, cap: 2, state: 'aktiv', art: ['Klassenarbeit', 'Lernen lernen'], bio: 'Mathe-Leistungskurs. Ruhig, geduldig und mit vielen Übungsaufgaben.', badges: ['20 Stunden geholfen'], hours: 22 },
+      { id: 'noah', s: 'Bio', subjects: ['Bio', 'Ma'], stufen: [5, 9], ort: ['vor Ort'], times: [['Mi', '14–15']], price: 8, cap: 2, state: 'aktiv', art: ['Grundlagen'], bio: 'Kurz erklären, dann selbst ausprobieren. So bleibt es hängen.', badges: [], hours: 4 },
+      { id: 'sara', s: 'En', subjects: ['En'], stufen: [5, 7], ort: ['vor Ort'], times: [['Mo', '14–15'], ['Do', '15–16']], price: 9, cap: 2, state: 'aktiv', art: ['Grundlagen', 'Hausaufgaben'], bio: 'Ich habe ein Jahr in Irland gelebt. Wir sprechen viel und lernen nebenbei Grammatik.', badges: [], hours: 5 },
+      { id: 'can', s: 'Ph', subjects: ['Ph', 'Ma'], stufen: [8, 10], ort: ['vor Ort'], times: [['Di', '15–16']], price: 10, cap: 2, state: 'aktiv', art: ['Grundlagen', 'Klassenarbeit'], bio: 'Physik mit Alltagsbeispielen. Formeln verstehen statt auswendig lernen.', badges: [], hours: 2 },
+      { id: 'hanna', s: 'Ma', subjects: ['Ma', 'Ch'], stufen: [5, 10], ort: ['online'], times: [['Di', '17–18'], ['Mi', '15–16']], price: 11, cap: 1, state: 'aktiv', art: ['Klassenarbeit'], bio: 'Klassenarbeit bald? Wir gehen alte Aufgaben durch, Schritt für Schritt.', badges: [], hours: 9 }
+    ],
+    nachhilfen: [
+      { id: 'n1', tutor: 'jonas', learner: 'ben', fach: 'Ma', state: 'laeuft', anliegen: 'Grundlagen', created: 'Mo, 19.10.',
+        lessons: [
+          { id: 'l1', date: 'Di, 20.10.', dur: 45, ort: 'vor Ort', probe: true, state: 'bestaetigt' },
+          { id: 'l2', date: 'Di, 27.10.', dur: 60, ort: 'vor Ort', state: 'bestaetigt' },
+          { id: 'l3', date: 'Di, 3.11.', dur: 60, ort: 'vor Ort', state: 'wartet' }
+        ], weiter: { tutor: true, learner: true } },
+      { id: 'n2', tutor: 'noah', learner: 'ben', fach: 'Bio', state: 'probe', anliegen: 'Grundlagen', created: 'Mi, 28.10.',
+        lessons: [{ id: 'l4', date: 'Mo, 2.11.', dur: 45, ort: 'vor Ort', probe: true, state: 'bestaetigt' }], weiter: { tutor: true, learner: null } },
+      { id: 'n3', tutor: 'mira', learner: 'ben', fach: 'En', state: 'offen', anliegen: 'Klassenarbeit', zeiten: ['Do 16–17'], nachricht: 'Wir schreiben bald eine Arbeit über Simple Past.', created: 'Mo, 2.11.', deadline: 'Do, 5.11.', lessons: [], weiter: {} },
+      { id: 'n4', tutor: 'jonas', learner: 'mia', fach: 'Ma', state: 'offen', anliegen: 'Grundlagen', zeiten: ['Mo 15–16', 'Mi 16–17'], nachricht: 'Ich verstehe Brüche kürzen nicht.', created: 'Di, 3.11.', deadline: 'Fr, 6.11.', lessons: [], weiter: {} },
+      { id: 'n5', tutor: 'jonas', learner: 'tom', fach: 'Ma', state: 'probe', anliegen: 'Klassenarbeit', created: 'Do, 29.10.',
+        lessons: [{ id: 'l5', date: 'Mo, 2.11.', dur: 45, ort: 'vor Ort', probe: true, state: 'wartet' }], weiter: {} },
+      { id: 'n6', tutor: 'hanna', learner: 'max', fach: 'Ma', state: 'laeuft', anliegen: 'Klassenarbeit', created: 'Mo, 5.10.', lessons: [], weiter: { tutor: true, learner: true } }
+    ],
+    applications: [
+      { id: 'a1', user: 'paul', state: 'gespraech', created: 'Fr, 30.10.', talk: 'Do, 5.11., 13:15 Uhr · SMV-Raum', slots: ['Do, 5.11., 13:15', 'Fr, 6.11., 12:30'], consent: 'nicht nötig',
+        draft: { s: 'Ma', subjects: ['Ma', 'Ph'], stufen: [5, 8], ort: ['vor Ort'], times: [['Mo', '14–15'], ['Do', '15–16']], price: 9, cap: 2, art: ['Grundlagen'], bio: 'Ich mag Mathe, weil am Ende alles aufgeht. Ich erkläre gern mit Skizzen.' }, methods: [0, 1, 3] },
+      { id: 'a2', user: 'emma', state: 'wartet', created: 'Mo, 2.11.', slots: ['Mi, 4.11., 13:15', 'Do, 5.11., 13:15', 'Fr, 6.11., 12:30'], consent: 'liegt vor',
+        draft: { s: 'De', subjects: ['De', 'En'], stufen: [5, 6], ort: ['vor Ort'], times: [['Di', '14–15']], price: 0, cap: 2, art: ['Hausaufgaben', 'Lernen lernen'], bio: 'Ich lese viel und helfe gern bei Aufsätzen und Vokabeln.' }, methods: [] },
+      { id: 'a3', user: 'tim', state: 'einspruch', created: 'Mo, 26.10.', decidedBy: 'mira', reason: 'Im Gespräch konnte Tim die Aufgaben selbst noch nicht sicher erklären.', appeal: 'Ich war im Gespräch nervös. Ich mache gern noch eine zweite Probe.', consent: 'nicht nötig',
+        draft: { s: 'Ch', subjects: ['Ch'], stufen: [8, 9], ort: ['vor Ort'], times: [['Mi', '15–16']], price: 10, cap: 1, art: ['Grundlagen'], bio: 'Chemie ist wie Kochen mit Regeln.' }, methods: [] }
+    ],
+    reports: [
+      { id: 'r1', about: 'tutor', aboutId: 'sara', grund: 'Nicht erschienen', text: 'Sara ist zweimal nicht gekommen und hat nicht abgesagt.', reporter: 'Hannah, Klasse 6', state: 'offen', when: 'Mo, 2.11.' },
+      { id: 'r2', about: 'nehmend', aboutId: 'max', grund: 'Unhöfliche Nachrichten', text: 'Max schreibt mir abends viele Nachrichten und wird frech, wenn ich nicht antworte.', reporter: 'Hanna W. (Tutorin)', state: 'offen', when: 'Di, 3.11.' }
+    ],
+    consents: [
+      { user: 'lea', state: 'wartet', online: false },
+      { user: 'finn', state: 'wartet', online: false }
+    ],
+    leitung: ['mira', 'jan', 'sophie'],
+    leitungNames: { mira: 'Mira', jan: 'Jan', sophie: 'Sophie' },
+    protocol: [
+      { when: 'Mo, 2.11., 18:02', who: 'System', what: 'Anfrage von Ben an Mira (Englisch) eingegangen' },
+      { when: 'Fr, 30.10., 14:10', who: 'Jan (Leitungsteam)', what: 'Gespräch mit Paul vereinbart: Do, 5.11., 13:15' },
+      { when: 'Mi, 28.10., 16:40', who: 'Mira (Leitungsteam)', what: 'Bewerbung von Tim abgelehnt' }
+    ]
+  };
+};
+
+/* js/service.js */
+/* nachhilfly Prototyp v2 – Datenschicht.
+   Bildet nach, wie die echte App arbeitet: Jede Aktion geht als Antrag in die Liste
+   "Eingang", ein Ablauf (Power Automate) prüft ihn und schreibt das Ergebnis.
+   Deshalb ist jede Aktion asynchron und dauert kurz ("wird verarbeitet").
+   In SPFx wird nur diese Datei gegen echte SharePoint-Aufrufe getauscht. */
+(function () {
+  var db = NH.seed();
+  var n = 0;
+  function uid(p) { n += 1; return p + Date.now().toString(36) + n; }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function now() { var d = new Date(); return db.today + ', ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+  function log(who, what) { db.protocol.unshift({ when: now(), who: who, what: what }); }
+  function user(id) { return db.users[id] || { id: id, first: id, name: id, av: 7 }; }
+  function tutor(id) { return db.tutors.find(function (t) { return t.id === id; }); }
+  function nh(id) { return db.nachhilfen.find(function (x) { return x.id === id; }); }
+  function app(id) { return db.applications.find(function (x) { return x.id === id; }); }
+  function lvl(k) { return k === 'J1' ? 12 : k === 'J2' ? 13 : Number(k); }
+  function used(tid) { return db.nachhilfen.filter(function (x) { return x.tutor === tid && (x.state === 'probe' || x.state === 'laeuft'); }).length; }
+  function fail(msg) { var e = new Error(msg); e.userMessage = msg; throw e; }
+
+  var handlers = {
+    register: function (me, p) {
+      var u = user(me);
+      u.registered = true; u.av = p.av;
+      if (p.as === 'tutor') { u.roles = ['bewerber']; } else { u.roles = ['nehmend']; }
+      if (lvl(u.klasse) <= 8 && !db.consents.find(function (c) { return c.user === me; })) {
+        u.consent = false; db.consents.push({ user: me, state: 'wartet', online: false });
+      }
+      log(u.first, 'Registriert als ' + (p.as === 'tutor' ? 'Tutor-Bewerber' : 'Nachhilfe-Nehmende/r'));
+    },
+    apply: function (me, p) {
+      var u = user(me);
+      u.roles = u.roles.filter(function (r) { return r !== 'bewerber'; }).concat(['bewerber']);
+      db.applications.unshift({ id: uid('a'), user: me, state: 'wartet', created: db.today, slots: p.slots, consent: u.consent ? 'liegt vor' : (lvl(u.klasse) <= 8 ? 'fehlt' : 'nicht nötig'), draft: p.draft, methods: [] });
+      log(u.first, 'Tutor-Bewerbung abgeschickt');
+    },
+    request: function (me, p) {
+      var u = user(me), t = tutor(p.tutor);
+      if (!u.consent) fail('Deine Eltern müssen erst zustimmen.');
+      if (db.settings.pause) fail('nachhilfly macht gerade Pause.');
+      if (t.state !== 'aktiv' || used(t.id) >= t.cap) fail('Dieser Tutor ist gerade voll geworden.');
+      if (lvl(u.klasse) < t.stufen[0] || lvl(u.klasse) > t.stufen[1] || lvl(u.klasse) >= lvl(user(t.id).klasse)) fail('Dieser Tutor unterrichtet deine Klasse nicht.');
+      var open = db.nachhilfen.filter(function (x) { return x.learner === me && x.state === 'offen'; });
+      if (open.length >= 3) fail('Du hast schon 3 offene Anfragen.');
+      if (open.some(function (x) { return x.tutor === t.id; })) fail('Du hast schon eine offene Anfrage bei ' + user(t.id).first + '.');
+      db.nachhilfen.unshift({ id: uid('n'), tutor: t.id, learner: me, fach: p.fach, state: 'offen', anliegen: p.anliegen, zeiten: p.zeiten, nachricht: p.nachricht, created: db.today, deadline: 'Fr, 6.11.', lessons: [], weiter: {} });
+      log('System', 'Anfrage von ' + u.first + ' an ' + user(t.id).first + ' (' + NH.SUBJECTS[p.fach].name + ') eingegangen');
+    },
+    withdraw: function (me, p) { var x = nh(p.id); x.state = 'zurueckgezogen'; log(user(me).first, 'Anfrage zurückgezogen'); },
+    accept: function (me, p) {
+      var x = nh(p.id), t = tutor(me);
+      if (used(me) >= t.cap) fail('Alle deine Plätze sind belegt.');
+      x.state = 'probe'; log(user(me).first, 'Anfrage von ' + user(x.learner).first + ' angenommen');
+    },
+    decline: function (me, p) { var x = nh(p.id); x.state = 'abgelehnt'; x.reason = p.reason || ''; log(user(me).first, 'Anfrage von ' + user(x.learner).first + ' abgelehnt'); },
+    logLesson: function (me, p) {
+      var x = nh(p.id);
+      x.lessons.push({ id: uid('l'), date: p.date, dur: p.dur, ort: p.ort, probe: x.state === 'probe' && x.lessons.length === 0, state: 'wartet' });
+      log(user(me).first, 'Stunde mit ' + user(x.learner).first + ' eingetragen (' + p.date + ', ' + p.dur + ' Min)');
+    },
+    confirmLesson: function (me, p) {
+      var x = nh(p.id), l = x.lessons.find(function (y) { return y.id === p.lesson; });
+      l.state = p.ok ? 'bestaetigt' : 'bestritten';
+      if (p.ok) { var t = tutor(x.tutor); if (t) t.hours += l.dur >= 60 ? 1 : 0.75; }
+      log(user(me).first, (p.ok ? 'Stunde bestätigt' : 'Stunde bestritten') + ' (' + l.date + ', ' + user(x.tutor).first + ')');
+    },
+    weiter: function (me, p) {
+      var x = nh(p.id), side = x.learner === me ? 'learner' : 'tutor';
+      x.weiter[side] = p.yes;
+      if (!p.yes) { x.state = 'beendet'; x.endedBy = me; log(user(me).first, 'Nach der Probestunde beendet'); return; }
+      if (x.weiter.tutor === null || x.weiter.tutor === undefined) x.weiter.tutor = true;
+      if (x.weiter.learner && x.weiter.tutor) x.state = 'laeuft';
+      log(user(me).first, 'Will nach der Probestunde weitermachen');
+    },
+    end: function (me, p) { var x = nh(p.id); x.state = 'beendet'; x.endedBy = me; log(user(me).first, 'Nachhilfe beendet'); },
+    pause: function (me, p) { var t = tutor(me); t.state = p.on ? 'pausiert' : 'aktiv'; log(user(me).first, p.on ? 'Pause gestartet' : 'Pause beendet'); },
+    changeQuick: function (me, p) { var t = tutor(me); Object.assign(t, p.fields); log(user(me).first, 'Steckbrief geändert (sofort gültig)'); },
+    changeRequest: function (me, p) { var t = tutor(me); t.pendingChange = p.fields; log(user(me).first, 'Änderung am Steckbrief beantragt (geht zur Freigabe)'); },
+    methodRead: function (me, p) {
+      var a = db.applications.find(function (y) { return y.user === me && ['wartet', 'gespraech'].indexOf(y.state) >= 0; });
+      if (!a) return; var i = a.methods.indexOf(p.i);
+      if (i >= 0) a.methods.splice(i, 1); else a.methods.push(p.i);
+    },
+    updateApp: function (me, p) { var a = app(p.id); if (a.state !== 'wartet') fail('Der Steckbrief ist bis zur Entscheidung gesperrt.'); Object.assign(a.draft, p.draft); a.slots = p.slots; log(user(me).first, 'Bewerbung geändert'); },
+    withdrawApp: function (me, p) { var a = app(p.id); a.state = 'zurueckgezogen'; var u = user(me); u.roles = u.roles.filter(function (r) { return r !== 'bewerber'; }); if (!u.roles.length) u.roles = ['nehmend']; log(u.first, 'Bewerbung zurückgezogen'); },
+    appeal: function (me, p) { var a = app(p.id); a.state = 'einspruch'; a.appeal = p.text; log(user(me).first, 'Einspruch gegen Ablehnung eingelegt'); },
+    /* Leitungsteam: der Ablauf prüft, dass niemand über eigene Fälle entscheidet */
+    schedule: function (me, p) { var a = app(p.id); if (a.user === me || (a.befangen || []).indexOf(me) >= 0) fail('Bei diesem Fall darfst du nicht entscheiden.'); a.state = 'gespraech'; a.talk = p.slot + ' Uhr · SMV-Raum'; log(db.leitungNames[me] + ' (Leitungsteam)', 'Gespräch mit ' + user(a.user).first + ' vereinbart: ' + p.slot); },
+    approve: function (me, p) {
+      var a = app(p.id);
+      if (a.user === me || a.decidedBy === me || (a.befangen || []).indexOf(me) >= 0) fail('Bei diesem Fall darfst du nicht entscheiden.');
+      a.state = 'bestaetigt'; a.decidedBy = me;
+      var u = user(a.user); u.roles = u.roles.filter(function (r) { return r !== 'bewerber'; }).concat(['tutor']);
+      db.tutors.push(Object.assign({ id: a.user, state: 'aktiv', badges: [], hours: 0 }, a.draft));
+      log(db.leitungNames[me] + ' (Leitungsteam)', 'Bewerbung von ' + u.first + ' bestätigt');
+    },
+    reject: function (me, p) {
+      var a = app(p.id);
+      if (a.user === me || (a.befangen || []).indexOf(me) >= 0) fail('Bei diesem Fall darfst du nicht entscheiden.');
+      if (a.state === 'einspruch') { if (a.decidedBy === me) fail('Über den Einspruch entscheidet jemand anderes.'); a.state = 'endgueltig'; }
+      else { a.state = 'abgelehnt'; a.decidedBy = me; }
+      a.reason = p.reason || a.reason;
+      log(db.leitungNames[me] + ' (Leitungsteam)', 'Bewerbung von ' + user(a.user).first + (a.state === 'endgueltig' ? ' endgültig abgelehnt' : ' abgelehnt'));
+    },
+    befangen: function (me, p) { var a = app(p.id); a.befangen = (a.befangen || []).concat([me]); log(db.leitungNames[me] + ' (Leitungsteam)', 'Bei ' + user(a.user).first + ' als befangen gemeldet'); },
+    suspend: function (me, p) { var t = tutor(p.id); t.state = 'ausgesetzt'; endAll(p.id); log(nameOf(me), user(p.id).first + ' vorläufig ausgesetzt'); },
+    unsuspend: function (me, p) { var t = tutor(p.id); t.state = 'pausiert'; log(nameOf(me), user(p.id).first + ' wieder freigegeben (startet pausiert)'); },
+    banRequest: function (me, p) { var t = tutor(p.id); t.banVotes = (t.banVotes || []).concat([me]); log(nameOf(me), 'Sperre für ' + user(p.id).first + ' beantragt (braucht ein zweites Mitglied oder die Lehrkraft)'); },
+    approveChange: function (me, p) { var t = tutor(p.id); if (p.id === me) fail('Eigene Änderungen gibt jemand anderes frei.'); Object.assign(t, t.pendingChange || {}); t.pendingChange = null; log(nameOf(me), 'Steckbrief-Änderung von ' + user(p.id).first + ' freigegeben'); },
+    badge: function (me, p) { var t = tutor(p.id); t.badges.push(p.badge); log(nameOf(me), 'Abzeichen für ' + user(p.id).first + ': ' + p.badge); },
+    reportDecide: function (me, p) { var r = db.reports.find(function (x) { return x.id === p.id; }); r.state = 'erledigt'; r.decision = p.decision; if (p.decision === 'ausgesetzt' && r.about === 'tutor') { tutor(r.aboutId).state = 'ausgesetzt'; endAll(r.aboutId); } log(nameOf(me), 'Meldung über ' + user(r.aboutId).first + ': ' + p.decision); },
+    report: function (me, p) {
+      if (p.kind === 'kinderschutz') { log('System', 'Kinderschutz-Meldung direkt an die Ansprechperson weitergeleitet (nicht gespeichert)'); return; }
+      db.reports.unshift({ id: uid('r'), about: p.about || 'app', aboutId: p.aboutId || '', grund: p.grund, text: p.text, reporter: user(me).name, state: 'offen', when: db.today });
+      log('System', 'Neue Meldung eingegangen');
+    },
+    consent: function (me, p) {
+      var c = db.consents.find(function (x) { return x.user === p.user; }); c.state = 'liegt vor'; c.online = !!p.online; c.date = db.today;
+      user(p.user).consent = true; user(p.user).online = !!p.online;
+      db.applications.forEach(function (a) { if (a.user === p.user && a.consent === 'fehlt') a.consent = 'liegt vor'; });
+      log('Frau Keller (Lehrkraft)', 'Einwilligung der Eltern von ' + user(p.user).first + ' eingetragen');
+    },
+    setting: function (me, p) { db.settings[p.key] = p.value; log('Frau Keller (Lehrkraft)', 'Einstellung geändert: ' + p.label); },
+    leave: function (me) {
+      db.nachhilfen.forEach(function (x) { if ((x.learner === me || x.tutor === me) && ['offen', 'probe', 'laeuft'].indexOf(x.state) >= 0) { x.state = 'beendet'; x.endedBy = me; } });
+      var u = user(me); u.registered = false; u.roles = [];
+      log('System', u.first + ' hat nachhilfly verlassen, Daten gelöscht');
+    }
+  };
+  function nameOf(me) { return me === 'keller' ? 'Frau Keller (Lehrkraft)' : (db.leitungNames[me] || me) + ' (Leitungsteam)'; }
+  function endAll(tid) { db.nachhilfen.forEach(function (x) { if (x.tutor === tid && ['offen', 'probe', 'laeuft'].indexOf(x.state) >= 0) { x.state = 'beendet'; x.endedBy = 'system'; x.unavailable = true; } }); }
+
+  NH.svc = {
+    get db() { return db; },
+    user: user, tutor: tutor, nh: nh, lvl: lvl, used: used,
+    /* Schickt einen Antrag in den "Eingang" und wartet auf den Ablauf. */
+    send: function (type, me, payload, fast) {
+      return wait(fast ? 150 : 650 + Math.random() * 450).then(function () { handlers[type](me, payload || {}); });
+    },
+    reset: function () { db = NH.seed(); }
+  };
+})();
+
+/* js/ui.js */
+/* nachhilfly Prototyp v2 – Bauteile (aus DESIGN.md). Geben HTML-Text zurück. */
+(function () {
+  var I = {
+    help: '<circle cx="12" cy="12" r="9"></circle><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4"></path><path d="M12 17h.01"></path>',
+    search: '<circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4 4"></path>',
+    down: '<path d="M6 9l6 6 6-6"></path>',
+    right: '<path d="M9 6l6 6-6 6"></path>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"></path>',
+    plus: '<path d="M12 5v14M5 12h14"></path>',
+    book: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"></path><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"></path>',
+    user: '<circle cx="12" cy="8.5" r="3.5"></circle><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"></path>',
+    home: '<path d="M4 11.5L12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"></path>',
+    inbox: '<path d="M4 6h16v10H8l-4 4z"></path>',
+    people: '<circle cx="9" cy="9" r="3"></circle><circle cx="17" cy="10" r="2.5"></circle><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5s4.9 1.5 5.5 4.5"></path><path d="M15 15c2.6 0 4.3 1.3 5 4"></path>',
+    card: '<rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 9h6M9 13h6M9 17h3"></path>',
+    list: '<path d="M8 6h12M8 12h12M8 18h12"></path><path d="M4 6h.01M4 12h.01M4 18h.01"></path>',
+    flag: '<path d="M5 21V4"></path><path d="M5 4h11l-2 4 2 4H5"></path>',
+    chart: '<path d="M5 20V10M12 20V4M19 20v-7"></path>',
+    shield: '<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"></path><path d="M9 12l2 2 4-4"></path>',
+    clock: '<circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path>',
+    gear: '<circle cx="12" cy="12" r="3"></circle><path d="M12 2.8v2.4M12 18.8v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"></path>',
+    sparkle: '<path d="M12 4l1.8 4.7L18.5 10l-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.3z"></path>',
+    hand: '<path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12"></path><path d="M11 11V5a1.5 1.5 0 0 1 3 0v6"></path><path d="M14 11V6.5a1.5 1.5 0 0 1 3 0V14c0 3.6-2.4 6-6 6-2.6 0-4-1.2-5.2-3L4 13.6a1.5 1.5 0 0 1 2.4-1.8L8 13.5"></path>',
+    chat: '<path d="M5 5h14v10H10l-5 4z"></path>',
+    pause: '<circle cx="12" cy="12" r="8.5"></circle><path d="M10 9v6M14 9v6"></path>',
+    info: '<circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5M12 8h.01"></path>',
+    lock: '<rect x="5.5" y="10.5" width="13" height="9" rx="2"></rect><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"></path>',
+    swap: '<path d="M7 7h12l-3-3M17 17H5l3 3"></path>',
+    cal: '<rect x="4" y="5.5" width="16" height="14" rx="2"></rect><path d="M4 10h16M9 3.5v4M15 3.5v4"></path>'
+  };
+  function ic(name, cls, extra) { return '<svg class="ic' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true"' + (extra || '') + '>' + I[name] + '</svg>'; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function initials(u) { var p = (u.name || u.first || '?').replace(/^Frau /, '').split(' '); return (p[0][0] + (p[1] ? p[1][0] : '')).toUpperCase(); }
+  function av(u, cls) { var a = NH.AVATARS[u.av || 0]; return '<div class="av' + (cls ? ' ' + cls : '') + '" style="background:' + a.bg + ';color:' + a.fg + '" aria-hidden="true">' + esc(initials(u)) + '</div>'; }
+  function ban(code) { return '<div class="ban" style="background:' + NH.SUBJECTS[code].color + '" title="' + NH.SUBJECTS[code].name + '">' + esc(code) + '</div>'; }
+  function kl(k) { return typeof k === 'number' ? 'Klasse ' + k : k; }
+  function price(p) { return p === 0 ? 'kostenlos' : p + ' €'; }
+  function act(name, data) { var s = ' data-act="' + name + '"'; for (var k in (data || {})) s += ' data-' + k + '="' + esc(data[k]) + '"'; return s; }
+  function logo() {
+    if (NH.config && NH.config.logo) return '<div class="logo has-img"><img src="' + NH.config.logo + '" alt="Evangelisches Heidehof-Gymnasium"></div>';
+    return '<div class="logo" aria-label="Platz für das Schullogo">Schul-<br>logo</div>';
+  }
+  function navbar(title, opts) {
+    opts = opts || {};
+    return '<header class="nb' + (opts.grey ? ' grey' : '') + '" data-nb>' +
+      (opts.left || logo()) +
+      '<span class="ctitle">' + esc(title) + '</span><span class="sp"></span>' + (opts.right || '') +
+      '<button class="nbtn"' + act('help') + ' aria-label="Hilfe und Melden">' + ic('help') + '</button></header>';
+  }
+  function tabbar(tabs, current) {
+    return '<nav class="tb" aria-label="Bereiche">' + tabs.map(function (t) {
+      return '<button' + act('tab', { tab: t.id }) + (t.id === current ? ' aria-current="page"' : '') + '>' + ic(t.icon) + esc(t.label) + (t.badge ? '<span class="badge">' + t.badge + '</span>' : '') + '</button>';
+    }).join('') + '</nav>';
+  }
+  function chip(label, on, a, extra) { return '<button class="chip' + (on ? ' on' : '') + '"' + a + (extra || '') + ' aria-pressed="' + !!on + '">' + label + '</button>'; }
+  function sg(items, a) { return '<div class="sg" role="group">' + items.map(function (it, i) { return '<button' + act(a.act, Object.assign({}, a.data || {}, { v: i })) + ' aria-pressed="' + (it.on ? 'true' : 'false') + '">' + esc(it.l) + '</button>'; }).join('') + '</div>'; }
+  function sw(on, a, label) { return '<button class="sw" role="switch" aria-checked="' + !!on + '" aria-label="' + esc(label) + '"' + a + '></button>'; }
+  function pill(text, kind) { return '<span class="pill ' + kind + '">' + esc(text) + '</span>'; }
+  function empty(t1, t2, btn) { return '<div class="empty"><div class="e1">' + esc(t1) + '</div><div class="e2">' + esc(t2) + '</div>' + (btn || '') + '</div>'; }
+  function note(html, kind, icon) { return '<div class="note' + (kind ? ' ' + kind : '') + '">' + ic(icon || 'info') + '<div>' + html + '</div></div>'; }
+
+  NH.ui = { ic: ic, esc: esc, av: av, ban: ban, kl: kl, price: price, act: act, logo: logo, navbar: navbar, tabbar: tabbar, chip: chip, sg: sg, sw: sw, pill: pill, empty: empty, note: note, initials: initials };
+})();
+
+/* js/app.js */
+/* nachhilfly Prototyp v2 – App-Kern: Zustand, Darstellung, Blätter, Menüs, Meldungen.
+   Kein Inline-JavaScript im HTML: alle Klicks laufen über data-act (wie in SPFx nötig). */
+(function () {
+  var U = NH.ui, S = NH.svc;
+  var A = NH.app = {
+    state: { role: 'ben', tabs: {}, sheet: null, menu: null, form: {}, scroll: {} },
+    areas: {}, sheets: {}, actions: {}, menus: {}
+  };
+
+  A.PERSONAS = [
+    { id: 'nils', label: 'Nils, Klasse 8', sub: 'öffnet die App zum ersten Mal' },
+    { id: 'lea', label: 'Lea, Klasse 6', sub: 'Eltern-Einwilligung fehlt noch' },
+    { id: 'ben', label: 'Ben, Klasse 7', sub: 'bekommt Nachhilfe' },
+    { id: 'paul', label: 'Paul, Klasse 9', sub: 'hat sich als Tutor beworben' },
+    { id: 'jonas', label: 'Jonas, Klasse 10', sub: 'bestätigter Tutor' },
+    { id: 'mira', label: 'Mira, J1', sub: 'Leitungsteam und Tutorin' },
+    { id: 'keller', label: 'Frau Keller', sub: 'betreuende Lehrkraft' }
+  ];
+
+  A.me = function () { return S.user(A.state.role); };
+  A.view = function () {
+    var u = A.me();
+    if (!u.registered) return 'reg';
+    var v = u.view && u.roles.indexOf(u.view) >= 0 ? u.view : u.roles[0];
+    return v;
+  };
+  A.f = function (key, init) { if (!(key in A.state.form)) A.state.form[key] = typeof init === 'function' ? init() : init; return A.state.form[key]; };
+
+  /* ---------- Darstellung ---------- */
+  var root;
+  A.render = function () {
+    root = root || document.getElementById('screen');
+    var st = A.state, prevSc = root.querySelector('[data-sc]');
+    if (prevSc) st.scroll[prevSc.dataset.sc] = prevSc.scrollTop;
+    var u = A.me(), v = A.view(), area = A.areas[v];
+    var html = '';
+    if (S.db.settings.pause && v !== 'lehrkraft') {
+      html = '<div class="pause-screen">' + U.ic('pause', '', ' style="width:48px;height:48px;color:var(--nh-blue)"') + '<div style="font-size:22px;font-weight:700">nachhilfly macht gerade Pause</div><div style="font-size:15px;color:var(--nh-text-2);line-height:1.45">Die betreuende Lehrkraft hat die App kurz angehalten. Bei Fragen: Frau Keller oder die SMV.</div></div>';
+    } else {
+      var tabs = area.tabs ? area.tabs(u) : null;
+      var tk = st.role + ':' + v, tab = st.tabs[tk] || (tabs ? tabs[0].id : 'main');
+      if (tabs && !tabs.some(function (t) { return t.id === tab; })) tab = tabs[0].id;
+      st.tabs[tk] = tab;
+      var scr = area.screen(tab, u);
+      var key = v + ':' + tab;
+      var roleBtn = u.roles.length > 1 ? '<button class="rolebtn"' + U.act('menu', { menu: 'roles' }) + ' aria-haspopup="menu">' + U.av(u) + A.roleName(v) + U.ic('down', 'xs') + '</button>' : '';
+      html = U.navbar(scr.title, { right: roleBtn, grey: scr.grey }) +
+        '<main class="sc' + (tabs ? '' : ' notab') + (scr.grey ? ' grey' : '') + '" data-sc="' + key + '">' +
+        (scr.noTitle ? '' : '<h1 class="lt">' + U.esc(scr.title) + '</h1>') + scr.html + '</main>' +
+        (tabs ? U.tabbar(tabs, tab) : '');
+    }
+    html += sheetHtml() + menuHtml() + '<div class="toast' + (st.toast && st.toast.notab ? ' notab' : '') + (st.toast ? ' open' : '') + '" role="status" aria-live="polite">' + (st.toast ? (st.toast.spin ? '<span class="spin"></span>' : U.ic(st.toast.icon || 'check')) + '<span>' + U.esc(st.toast.text) + '</span>' : '') + '</div>';
+    root.innerHTML = html;
+    var sc = root.querySelector('[data-sc]');
+    if (sc) {
+      sc.scrollTop = st.scroll[sc.dataset.sc] || 0;
+      var nb = root.querySelector('[data-nb]');
+      var upd = function () { nb.classList.toggle('cmp', sc.scrollTop > 30); };
+      upd(); sc.addEventListener('scroll', upd, { passive: true });
+    }
+    var sin = root.querySelector('.sin');
+    if (sin && st.sheet) { sin.scrollTop = st.sheet.scroll || 0; sin.addEventListener('scroll', function () { if (st.sheet) st.sheet.scroll = sin.scrollTop; }, { passive: true }); }
+    if (st.sheet && st.sheet.animIn) { st.sheet.animIn = false; requestAnimationFrame(function () { requestAnimationFrame(function () { root.querySelectorAll('.sheet,.back').forEach(function (e) { e.classList.add('open'); }); }); }); }
+    if (st.menu && st.menu.animIn) { st.menu.animIn = false; requestAnimationFrame(function () { requestAnimationFrame(function () { var m = root.querySelector('.menu'); if (m) m.classList.add('open'); }); }); }
+    if (st.focus) { var fe = root.querySelector(st.focus); if (fe) { fe.focus(); if (fe.setSelectionRange) { var L = fe.value.length; fe.setSelectionRange(L, L); } } st.focus = null; }
+    renderPanel();
+  };
+  A.roleName = function (v) { return { nehmend: 'Nachhilfe bekommen', tutor: 'Tutor', bewerber: 'Bewerbung', leitung: 'Leitungsteam', lehrkraft: 'Lehrkraft' }[v] || v; };
+
+  function sheetHtml() {
+    var sh = A.state.sheet; if (!sh) return '';
+    var def = A.sheets[sh.name](sh.data || {}, A.me());
+    var o = sh.animIn ? '' : ' open';
+    return '<button class="back' + o + '"' + U.act('closeSheet') + ' aria-label="Schließen" tabindex="-1"></button>' +
+      '<section class="sheet' + o + (def.tall ? ' tall' : '') + '" role="dialog" aria-modal="true" aria-label="' + U.esc(def.title || 'Details') + '">' +
+      '<div class="shd"><div class="slot">' + (def.left === undefined ? '<button class="tbtn"' + U.act('closeSheet') + '>Abbrechen</button>' : def.left) + '</div><div class="ttl">' + U.esc(def.title || '') + '</div><div class="slot r">' + (def.right || '') + '</div></div>' +
+      '<div class="sin">' + def.body + '</div>' + (def.footer ? '<div class="sft">' + def.footer + '</div>' : '') + '</section>';
+  }
+  function menuHtml() {
+    var m = A.state.menu; if (!m) return '';
+    var items = A.menus[m.name](m.data || {}, A.me());
+    var o = m.animIn ? '' : ' open';
+    var pos = m.align === 'r' ? 'right:' + m.r + 'px' : 'left:' + m.x + 'px';
+    return '<button class="catch"' + U.act('closeMenu') + ' aria-label="Menü schließen" tabindex="-1"></button><div class="menu' + (m.align === 'r' ? ' r' : '') + o + '" role="menu" style="top:' + m.y + 'px;' + pos + '">' +
+      items.map(function (it) { return '<button class="mi" role="menuitemradio" aria-checked="' + !!it.on + '"' + it.act + '><span class="chkm">' + (it.on ? U.ic('check', 's', ' style="stroke-width:2.4"') : '') + '</span><span>' + U.esc(it.l) + '</span></button>'; }).join('') + '</div>';
+  }
+
+  /* ---------- Blätter, Menüs, Meldungen ---------- */
+  A.openSheet = function (name, data) {
+    var anim = !A.state.sheet;
+    A.state.sheet = { name: name, data: data || {}, animIn: anim, scroll: 0 };
+    A.state.menu = null; A.render();
+  };
+  A.closeSheet = function () {
+    if (!A.state.sheet) return;
+    root.querySelectorAll('.sheet,.back').forEach(function (e) { e.classList.remove('open'); });
+    var s = A.state.sheet;
+    setTimeout(function () { if (A.state.sheet === s) { A.state.sheet = null; A.render(); } }, 420);
+  };
+  A.toast = function (text, opts) {
+    opts = opts || {};
+    A.state.toast = { text: text, spin: opts.spin, icon: opts.icon, notab: !document.querySelector('.tb') };
+    clearTimeout(A._tt);
+    var el = root.querySelector('.toast');
+    if (el) { el.className = 'toast open' + (A.state.toast.notab ? ' notab' : ''); el.innerHTML = (opts.spin ? '<span class="spin"></span>' : U.ic(opts.icon || 'check')) + '<span>' + U.esc(text) + '</span>'; }
+    if (!opts.spin) A._tt = setTimeout(function () { A.state.toast = null; var e = root.querySelector('.toast'); if (e) e.classList.remove('open'); }, opts.ms || 2600);
+  };
+  /* Antrag schicken: zeigt "wird verarbeitet", dann Ergebnis. */
+  A.send = function (type, payload, ok, after, fast) {
+    if (A.busy) return Promise.resolve();
+    A.busy = true;
+    if (!fast) A.toast('Wird verarbeitet …', { spin: true });
+    return S.send(type, A.state.role, payload, fast).then(function () {
+      A.busy = false;
+      if (after) after();
+      A.render();
+      if (ok) A.toast(ok); else if (!fast) { A.state.toast = null; A.render(); }
+    }).catch(function (e) {
+      A.busy = false; A.render();
+      A.toast(e.userMessage || 'Das hat nicht geklappt. Bitte versuch es noch einmal.', { icon: 'info', ms: 3600 });
+      if (!e.userMessage) console.error(e);
+    });
+  };
+
+  /* ---------- Testmodus-Leiste (außerhalb des Handys) ---------- */
+  function renderPanel() {
+    var box = document.getElementById('roles');
+    if (box) box.innerHTML = A.PERSONAS.map(function (p) {
+      var u = S.user(p.id);
+      return '<button class="role"' + U.act('persona', { id: p.id }) + ' aria-pressed="' + (A.state.role === p.id) + '">' + U.av(u) + '<span><b>' + U.esc(p.label) + '</b><span>' + U.esc(p.sub) + '</span></span></button>';
+    }).join('');
+    var sel = document.getElementById('roleSelect');
+    if (sel) {
+      if (!sel.options.length) sel.innerHTML = A.PERSONAS.map(function (p) { return '<option value="' + p.id + '">' + U.esc(p.label) + '</option>'; }).join('');
+      sel.value = A.state.role;
+    }
+  }
+
+  /* ---------- Ereignisse ---------- */
+  A.actions.persona = function (el) { A.state.role = el.dataset.id; A.state.scroll = {}; A.state.sheet = null; A.state.menu = null; A.state.toast = null; A.state.form = {}; A.render(); };
+  A.actions.reset = function () { S.reset(); A.state.tabs = {}; A.state.form = {}; A.state.sheet = null; A.state.menu = null; A.state.scroll = {}; A.render(); A.toast('Alles zurückgesetzt'); };
+  A.setTab = function (t) { A.state.tabs[A.state.role + ':' + A.view()] = t; };
+  A.actions.tab = function (el) { A.setTab(el.dataset.tab); A.state.scroll = {}; A.state.menu = null; A.render(); };
+  A.actions.closeSheet = function () { A.closeSheet(); };
+  A.actions.closeMenu = function () { A.state.menu = null; A.render(); };
+  A.actions.menu = function (el) {
+    var r = el.getBoundingClientRect(), box = root.getBoundingClientRect();
+    var right = el.dataset.menu === 'roles';
+    A.state.menu = { name: el.dataset.menu, data: Object.assign({}, el.dataset), animIn: true, x: Math.max(8, Math.min(r.left - box.left, box.width - 248)), y: r.bottom - box.top + 6, r: box.right - r.right, align: right ? 'r' : 'l' };
+    A.render();
+  };
+  A.menus.roles = function (d, u) {
+    return u.roles.map(function (r) { return { l: A.roleName(r), on: A.view() === r, act: U.act('switchView', { v: r }) }; });
+  };
+  A.actions.switchView = function (el) { A.me().view = el.dataset.v; A.state.menu = null; A.render(); };
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act]');
+    if (!el) return;
+    var fn = A.actions[el.dataset.act];
+    if (fn) { e.preventDefault(); fn(el, e); }
+  });
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (el.dataset && el.dataset.model) {
+      var parts = el.dataset.model.split('.'), o = A.state.form;
+      for (var i = 0; i < parts.length - 1; i++) { o[parts[i]] = o[parts[i]] || {}; o = o[parts[i]]; }
+      o[parts[parts.length - 1]] = el.value;
+      var c = el.dataset.count && document.getElementById(el.dataset.count);
+      if (c) c.textContent = el.value.length + ' / ' + el.maxLength;
+      var f = el.closest('.field'); if (f) f.classList.remove('err');
+      if (el.dataset.live) { A.state.focus = '#' + el.id; A.render(); }
+    }
+  });
+  document.addEventListener('change', function (e) {
+    if (e.target.id === 'roleSelect') { A.actions.persona({ dataset: { id: e.target.value } }); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { if (A.state.menu) { A.state.menu = null; A.render(); } else if (A.state.sheet) A.closeSheet(); }
+  });
+  A.start = function () { A.render(); };
+})();
+
+/* js/screens-learner.js */
+/* nachhilfly Prototyp v2 – Nachhilfe-Nehmende, Registrierung, Hilfe & Melden */
+(function () {
+  var A = NH.app, U = NH.ui, S = NH.svc, act = U.act, esc = U.esc;
+  var TOG = [['vor Ort', 'vo'], ['online', 'on'], ['kostenlos', 'ko'], ['freie Plätze', 'fr']];
+  var KL = [5, 6, 7, 8, 9, 10];
+
+  function db() { return S.db; }
+  function tage(t) { return t.times.map(function (x) { return x[0]; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(', '); }
+  function free(t) { return t.cap - S.used(t.id); }
+  function learnerNH(me) { return db().nachhilfen.filter(function (x) { return x.learner === me; }); }
+  function todo(me) {
+    var n = 0;
+    learnerNH(me).forEach(function (x) {
+      x.lessons.forEach(function (l) { if (l.state === 'wartet') n++; });
+      if (x.state === 'probe' && x.lessons.some(function (l) { return l.probe && l.state === 'bestaetigt'; }) && x.weiter.learner == null) n++;
+    });
+    return n;
+  }
+  A.learnerTodo = todo;
+
+  /* ---------- Bereich Nehmende ---------- */
+  A.areas.nehmend = {
+    tabs: function (u) {
+      return [
+        { id: 'find', label: 'Finden', icon: 'search' },
+        { id: 'mine', label: 'Meine Nachhilfe', icon: 'book', badge: todo(u.id) || '' },
+        { id: 'profile', label: 'Profil', icon: 'user' }
+      ];
+    },
+    screen: function (tab, u) { return { find: find, mine: mine, profile: profile }[tab](u); }
+  };
+
+  function filters(u) {
+    return A.f('find', function () { return { q: '', fach: null, kl: typeof u.klasse === 'number' ? u.klasse : null, tg: {} }; });
+  }
+  function find(u) {
+    var F = filters(u), q = (F.q || '').trim().toLowerCase();
+    var list = db().tutors.filter(function (t) {
+      if (t.id === u.id || t.state === 'ausgesetzt') return false;
+      var tu = S.user(t.id);
+      if (F.fach && t.subjects.indexOf(F.fach) < 0) return false;
+      if (F.kl && (F.kl < t.stufen[0] || F.kl > t.stufen[1])) return false;
+      if (F.tg.vo && t.ort.indexOf('vor Ort') < 0) return false;
+      if (F.tg.on && t.ort.indexOf('online') < 0) return false;
+      if (F.tg.ko && t.price !== 0) return false;
+      if (F.tg.fr && (free(t) <= 0 || t.state !== 'aktiv')) return false;
+      if (q && (tu.name + ' ' + t.subjects.map(function (s) { return NH.SUBJECTS[s].name; }).join(' ')).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    list.sort(function (a, b) { return (free(b) > 0 && b.state === 'aktiv') - (free(a) > 0 && a.state === 'aktiv'); });
+    var h = '';
+    if (!u.consent) h += U.note('<b>Deine Eltern müssen noch zustimmen.</b> Du kannst schon stöbern. Anfragen geht, sobald das Formular bei der Schule ist.', 'wait', 'lock');
+    if (db().settings.ferien) h += U.note('<b>Ferien.</b> Anfragen bleiben offen, die Antwortfrist läuft nach den Ferien weiter.', '', 'cal');
+    h += '<label class="search">' + U.ic('search', '', ' style="width:19px;height:19px"') + '<input id="q" type="search" placeholder="Fach oder Name suchen" aria-label="Fach oder Name suchen" data-model="find.q" data-live="1" value="' + esc(F.q) + '"></label>';
+    h += '<div class="chips">' +
+      U.chip(esc(F.fach ? NH.SUBJECTS[F.fach].name : 'Alle Fächer') + U.ic('down', 's'), !!F.fach, act('menu', { menu: 'fach' }), ' aria-haspopup="menu"') +
+      U.chip(esc(F.kl ? 'Klasse ' + F.kl : 'Alle Klassen') + U.ic('down', 's'), !!F.kl, act('menu', { menu: 'klasse' }), ' aria-haspopup="menu"') +
+      TOG.map(function (g) { return U.chip(g[0], !!F.tg[g[1]], act('toggleF', { k: g[1] })); }).join('') + '</div>';
+    h += '<h2 class="sh">' + list.length + (list.length === 1 ? ' Tutor' : ' Tutoren') + (F.kl ? ' für Klasse ' + F.kl : '') + '</h2>';
+    h += list.map(function (t) {
+      var tu = S.user(t.id), fr = free(t), off = fr <= 0 || t.state !== 'aktiv';
+      var code = F.fach && t.subjects.indexOf(F.fach) >= 0 ? F.fach : t.s;
+      return '<button class="row' + (off ? ' dim' : '') + '"' + act('openTutor', { id: t.id }) + '>' + U.ban(code) + U.av(tu) +
+        '<div style="min-width:0"><div class="t1">' + esc(tu.name) + '</div><div class="t2">' + esc(U.kl(tu.klasse)) + ' · ' + esc(t.ort.join(', ')) + '</div><div class="t2" style="margin-top:2px">' + esc(tage(t)) + '</div></div>' +
+        '<div><div class="r1">' + U.price(t.price) + '</div><div class="r2" style="color:' + (off ? 'var(--nh-text-off)' : 'var(--nh-ok)') + '">' + (t.state === 'pausiert' ? 'pausiert' : fr <= 0 ? 'gerade voll' : fr + (fr === 1 ? ' Platz frei' : ' Plätze frei')) + '</div></div>' +
+        U.ic('right', 'xs chev') + '</button>';
+    }).join('');
+    if (!list.length) h += U.empty('Kein Tutor passt', 'Probier es mit weniger Filtern.', '<button class="pb sec" style="margin-top:6px"' + act('resetF') + '>Filter zurücksetzen</button>');
+    h += '<p class="foot">Beispieldaten, Namen erfunden.</p>';
+    return { title: 'Finden', html: h };
+  }
+  A.menus.fach = function () {
+    var F = A.state.form.find;
+    return [{ l: 'Alle Fächer', on: !F.fach, act: act('setF', { k: 'fach', v: '' }) }].concat(Object.keys(NH.SUBJECTS).map(function (c) { return { l: NH.SUBJECTS[c].name, on: F.fach === c, act: act('setF', { k: 'fach', v: c }) }; }));
+  };
+  A.menus.klasse = function () {
+    var F = A.state.form.find;
+    return [{ l: 'Alle Klassen', on: !F.kl, act: act('setF', { k: 'kl', v: '' }) }].concat(KL.map(function (k) { return { l: 'Klasse ' + k, on: F.kl === k, act: act('setF', { k: 'kl', v: k }) }; }));
+  };
+  A.actions.setF = function (el) { var F = A.state.form.find, v = el.dataset.v; F[el.dataset.k] = v === '' ? null : (el.dataset.k === 'kl' ? Number(v) : v); A.state.menu = null; A.render(); };
+  A.actions.toggleF = function (el) { var F = A.state.form.find; F.tg[el.dataset.k] = !F.tg[el.dataset.k]; A.render(); };
+  A.actions.resetF = function () { var F = A.state.form.find; F.fach = null; F.kl = null; F.tg = {}; F.q = ''; A.render(); };
+
+  /* ---------- Steckbrief und Anfrage ---------- */
+  A.actions.openTutor = function (el) { A.openSheet('tutor', { id: el.dataset.id }); };
+  function steckbriefBody(t, tu) {
+    return '<div class="phead">' + U.av(tu, 'l') + '<div class="n">' + esc(tu.name) + '</div><div class="s">' + esc(U.kl(tu.klasse)) + (t.badges.length ? ' · ' + esc(t.badges.join(' · ')) : '') + '</div></div>' +
+      '<div class="grp pad">' + esc(t.bio) + '</div>' +
+      '<h3 class="gh">Angebot</h3><div class="grp">' +
+      '<div class="it"><span class="k">Fächer</span><span class="v">' + esc(t.subjects.map(function (s) { return NH.SUBJECTS[s].name; }).join(', ')) + '</span></div>' +
+      '<div class="it"><span class="k">Klassen</span><span class="v">' + t.stufen[0] + ' bis ' + t.stufen[1] + '</span></div>' +
+      '<div class="it"><span class="k">Hilfe bei</span><span class="v">' + esc(t.art.join(', ')) + '</span></div>' +
+      '<div class="it"><span class="k">Ort</span><span class="v">' + esc(t.ort.join(', ')) + '</span></div>' +
+      '<div class="it"><span class="k">Preis</span><span class="v">' + (t.price === 0 ? 'kostenlos' : t.price + ' € pro Stunde') + '</span></div>' +
+      '<div class="it"><span class="k">Probestunde</span><span class="v">kostenlos</span></div></div>' +
+      '<h3 class="gh">Freie Zeiten</h3><div class="grp">' + t.times.map(function (z) { return '<div class="it"><span class="k">' + esc({ Mo: 'Montag', Di: 'Dienstag', Mi: 'Mittwoch', Do: 'Donnerstag', Fr: 'Freitag' }[z[0]]) + '</span><span class="v">' + esc(z[1]) + ' Uhr</span></div>'; }).join('') + '</div>';
+  }
+  A.steckbriefBody = steckbriefBody;
+  A.sheets.tutor = function (d, u) {
+    var t = S.tutor(d.id), tu = S.user(d.id), fr = free(t);
+    var open = learnerNH(u.id).some(function (x) { return x.tutor === t.id && ['offen', 'probe', 'laeuft'].indexOf(x.state) >= 0; });
+    var myLvl = S.lvl(u.klasse), fits = myLvl >= t.stufen[0] && myLvl <= t.stufen[1] && myLvl < S.lvl(tu.klasse);
+    var foot;
+    if (t.id === u.id) foot = '<button class="btn" disabled>Das ist dein eigener Steckbrief</button>';
+    else if (u.roles.indexOf('nehmend') < 0) foot = '<button class="btn" disabled>Nur für Nachhilfe-Nehmende</button>';
+    else if (!u.consent) foot = '<button class="btn" disabled>' + U.ic('lock', 's') + 'Anfragen, sobald deine Eltern zugestimmt haben</button>';
+    else if (open) foot = '<button class="btn" disabled>Du hast schon Kontakt mit ' + esc(tu.first) + '</button>';
+    else if (t.state !== 'aktiv') foot = '<button class="btn" disabled>' + esc(tu.first) + ' macht gerade Pause</button>';
+    else if (fr <= 0) foot = '<button class="btn" disabled>Gerade keine Plätze frei</button>';
+    else if (!fits) foot = '<button class="btn" disabled>' + esc(tu.first) + ' unterrichtet deine Klasse nicht</button>';
+    else foot = '<button class="btn"' + act('toRequest', { id: t.id }) + '>Anfrage an ' + esc(tu.first) + ' stellen</button>';
+    return {
+      title: '', tall: true, left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>',
+      body: steckbriefBody(t, tu) + '<div style="display:flex;justify-content:center;margin-top:10px"><button class="tbtn grey"' + act('openReport', { kind: 'regeln', about: 'tutor', id: t.id }) + '>' + esc(tu.first) + ' melden</button></div>',
+      footer: foot
+    };
+  };
+  A.actions.toRequest = function (el) {
+    var t = S.tutor(el.dataset.id);
+    A.state.form.req = { tutor: t.id, fach: A.state.form.find && A.state.form.find.fach && t.subjects.indexOf(A.state.form.find.fach) >= 0 ? A.state.form.find.fach : t.s, anliegen: null, zeiten: [], msg: '' };
+    A.openSheet('request', { id: t.id });
+  };
+  A.sheets.request = function (d, u) {
+    var t = S.tutor(d.id), tu = S.user(d.id), R = A.state.form.req, err = R.err || {};
+    var times = t.times.map(function (z) { return z[0] + ' ' + z[1]; });
+    return {
+      title: 'Anfrage an ' + tu.first, tall: true,
+      left: '<button class="tbtn"' + act('openTutorBack', { id: t.id }) + '>Zurück</button>',
+      body: '<h3 class="gh" style="margin-top:8px">Fach</h3>' + U.sg(t.subjects.map(function (s) { return { l: NH.SUBJECTS[s].name, on: R.fach === s }; }), { act: 'reqFach', data: { id: t.id } }) +
+        '<h3 class="gh">Wobei brauchst du Hilfe?</h3><div class="chips wrap" style="margin:0 16px">' + NH.ANLIEGEN.map(function (a) { return U.chip(esc(a), R.anliegen === a, act('reqAnl', { v: a })); }).join('') + '</div>' + (err.anliegen ? '<p class="err-t">Bitte wähle aus, wobei du Hilfe brauchst.</p>' : '') +
+        '<h3 class="gh">Wann passt es dir?</h3><div class="chips wrap" style="margin:0 16px">' + times.map(function (z) { return U.chip(esc(z) + ' Uhr', R.zeiten.indexOf(z) >= 0, act('reqTime', { v: z })); }).join('') + '</div>' + (err.zeiten ? '<p class="err-t">Bitte wähle mindestens eine Zeit.</p>' : '') +
+        '<h3 class="gh">Nachricht (freiwillig)</h3><div class="field"><textarea id="reqMsg" rows="3" maxlength="300" placeholder="Zum Beispiel: Wir schreiben bald eine Arbeit über Brüche." data-model="req.msg" data-count="reqCnt">' + esc(R.msg) + '</textarea><div class="cnt" id="reqCnt">' + R.msg.length + ' / 300</div></div>' +
+        '<p class="gf">Keine Noten, keine Gesundheit, keine Kontaktdaten. ' + esc(tu.first) + ' antwortet in höchstens ' + db().settings.frist + ' Schultagen. Die erste Stunde ist kostenlos.</p>',
+      footer: '<button class="btn"' + act('sendRequest', { id: t.id }) + '>Anfrage senden</button>'
+    };
+  };
+  A.actions.openTutorBack = function (el) { A.openSheet('tutor', { id: el.dataset.id }); };
+  A.actions.reqFach = function (el) { var t = S.tutor(el.dataset.id); A.state.form.req.fach = t.subjects[Number(el.dataset.v)]; A.render(); };
+  A.actions.reqAnl = function (el) { var R = A.state.form.req; R.anliegen = el.dataset.v; R.err = Object.assign({}, R.err, { anliegen: false }); A.render(); };
+  A.actions.reqTime = function (el) { var R = A.state.form.req, v = el.dataset.v, i = R.zeiten.indexOf(v); if (i >= 0) R.zeiten.splice(i, 1); else R.zeiten.push(v); R.err = Object.assign({}, R.err, { zeiten: false }); A.render(); };
+  A.actions.sendRequest = function (el) {
+    var R = A.state.form.req, tu = S.user(el.dataset.id);
+    R.err = { anliegen: !R.anliegen, zeiten: !R.zeiten.length };
+    if (R.err.anliegen || R.err.zeiten) { A.render(); return; }
+    A.send('request', { tutor: el.dataset.id, fach: R.fach, anliegen: R.anliegen, zeiten: R.zeiten.slice(), nachricht: R.msg }, 'Anfrage an ' + tu.first + ' gesendet', function () {
+      A.state.sheet = null; A.setTab('mine');
+    });
+  };
+
+  /* ---------- Meine Nachhilfe ---------- */
+  function mine(u) {
+    var all = learnerNH(u.id), h = '';
+    var confirm = [], weiter = [];
+    all.forEach(function (x) {
+      x.lessons.forEach(function (l) { if (l.state === 'wartet') confirm.push([x, l]); });
+      if (x.state === 'probe' && x.lessons.some(function (l) { return l.probe && l.state === 'bestaetigt'; }) && x.weiter.learner == null) weiter.push(x);
+    });
+    if (confirm.length) {
+      h += '<h2 class="sh">Bitte bestätigen</h2>' + confirm.map(function (p) {
+        var x = p[0], l = p[1], tu = S.user(x.tutor);
+        return '<div class="row static nochev">' + U.ban(x.fach) + U.av(tu) + '<div style="min-width:0"><div class="t1">' + (l.probe ? 'Probestunde' : 'Stunde') + ' mit ' + esc(tu.first) + '</div><div class="t2">' + esc(l.date) + ' · ' + l.dur + ' Min · ' + esc(l.ort) + '</div>' +
+          '<div class="acts"><button class="pb"' + act('confirmL', { id: x.id, l: l.id, ok: 1 }) + '>Stimmt</button><button class="pb sec"' + act('confirmL', { id: x.id, l: l.id, ok: 0 }) + '>Stimmt nicht</button></div></div><span></span></div>';
+      }).join('');
+    }
+    if (weiter.length) {
+      h += '<h2 class="sh">Nach der Probestunde</h2>' + weiter.map(function (x) {
+        var tu = S.user(x.tutor);
+        return '<div class="row static nochev">' + U.ban(x.fach) + U.av(tu) + '<div style="min-width:0"><div class="t1">Weitermachen mit ' + esc(tu.first) + '?</div><div class="t2">Ein Nein beendet die Nachhilfe. ' + esc(tu.first) + ' erfährt keinen Grund.</div>' +
+          '<div class="acts"><button class="pb"' + act('weiter', { id: x.id, yes: 1 }) + '>Ja, weitermachen</button><button class="pb sec"' + act('weiter', { id: x.id, yes: 0 }) + '>Nein, danke</button></div></div><span></span></div>';
+      }).join('');
+    }
+    var open = all.filter(function (x) { return x.state === 'offen'; });
+    if (open.length) {
+      h += '<h2 class="sh">Offene Anfragen · ' + open.length + ' von 3</h2>' + open.map(function (x) {
+        var tu = S.user(x.tutor);
+        return '<button class="row"' + act('openMyReq', { id: x.id }) + '>' + U.ban(x.fach) + U.av(tu) + '<div style="min-width:0"><div class="t1">Anfrage an ' + esc(tu.first) + '</div><div class="t2">' + esc(NH.SUBJECTS[x.fach].name) + ' · gesendet ' + esc(x.created) + '</div><div class="t2" style="margin-top:2px">Antwort bis ' + esc(x.deadline) + '</div></div><div>' + U.pill('wartet', 'wait') + '</div>' + U.ic('right', 'xs chev') + '</button>';
+      }).join('');
+    }
+    var run = all.filter(function (x) { return x.state === 'probe' || x.state === 'laeuft'; });
+    if (run.length) {
+      h += '<h2 class="sh">Meine Tutoren</h2>' + run.map(function (x) {
+        var tu = S.user(x.tutor), t = S.tutor(x.tutor), n = x.lessons.filter(function (l) { return l.state === 'bestaetigt'; }).length;
+        return '<button class="row"' + act('openNH', { id: x.id }) + '>' + U.ban(x.fach) + U.av(tu) + '<div style="min-width:0"><div class="t1">' + esc(tu.name) + '</div><div class="t2">' + esc(NH.SUBJECTS[x.fach].name) + ' · ' + (x.state === 'probe' ? 'Probephase' : n + (n === 1 ? ' Stunde' : ' Stunden')) + '</div>' + (t && t.state === 'pausiert' ? '<div class="t2" style="margin-top:2px">macht gerade Pause</div>' : '') + '</div><div>' + (x.state === 'probe' ? U.pill('Probe', 'blue') : U.pill('läuft', 'ok')) + '</div>' + U.ic('right', 'xs chev') + '</button>';
+      }).join('');
+    }
+    var done = all.filter(function (x) { return ['abgelehnt', 'abgelaufen', 'beendet'].indexOf(x.state) >= 0; });
+    if (done.length) {
+      h += '<h2 class="sh">Beendet</h2>' + done.map(function (x) {
+        var tu = S.user(x.tutor), why = x.unavailable ? 'Tutor nicht mehr verfügbar' : x.state === 'abgelehnt' ? 'Anfrage abgelehnt' : x.state === 'abgelaufen' ? 'Keine Antwort, abgelaufen' : 'beendet';
+        return '<div class="row static nochev dim">' + U.ban(x.fach) + U.av(tu) + '<div style="min-width:0"><div class="t1">' + esc(tu.name) + '</div><div class="t2">' + esc(why) + '</div>' +
+          (x.unavailable || x.state !== 'beendet' ? '<div class="acts"><button class="pb sec"' + act('findSubject', { fach: x.fach }) + '>Neuen Tutor finden</button></div>' : '') + '</div><span></span></div>';
+      }).join('');
+    }
+    if (!h) h = U.empty('Noch keine Nachhilfe', 'Such dir einen Tutor aus. Die erste Stunde ist immer kostenlos.', '<button class="pb" style="margin-top:6px"' + act('tab', { tab: 'find' }) + '>Tutor finden</button>');
+    return { title: 'Meine Nachhilfe', html: h };
+  }
+  A.actions.confirmL = function (el) { var ok = el.dataset.ok === '1'; A.send('confirmLesson', { id: el.dataset.id, lesson: el.dataset.l, ok: ok }, ok ? 'Stunde bestätigt' : 'Gemeldet: Stunde stimmt nicht'); };
+  A.actions.weiter = function (el) { var yes = el.dataset.yes === '1'; A.send('weiter', { id: el.dataset.id, yes: yes }, yes ? 'Super, es geht weiter' : 'Nachhilfe beendet'); };
+  A.actions.findSubject = function (el) { var F = A.state.form.find || {}; A.state.form.find = Object.assign(F, { fach: el.dataset.fach, tg: F.tg || {}, q: '' }); A.setTab('find'); A.render(); };
+  A.actions.openMyReq = function (el) { A.openSheet('myreq', { id: el.dataset.id }); };
+  A.sheets.myreq = function (d) {
+    var x = S.nh(d.id); if (!x) return { title: '', body: '' };
+    var tu = S.user(x.tutor);
+    return {
+      title: 'Anfrage', left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>',
+      body: '<div class="phead">' + U.av(tu, 'l') + '<div class="n">' + esc(tu.name) + '</div><div class="s">' + esc(NH.SUBJECTS[x.fach].name) + ' · ' + esc(x.anliegen) + '</div></div>' +
+        '<div class="grp"><div class="it"><span class="k">Gesendet</span><span class="v">' + esc(x.created) + '</span></div><div class="it"><span class="k">Antwort bis</span><span class="v">' + esc(x.deadline) + '</span></div><div class="it"><span class="k">Zeiten</span><span class="v">' + esc((x.zeiten || []).join(', ')) + '</span></div></div>' +
+        (x.nachricht ? '<h3 class="gh">Deine Nachricht</h3><div class="grp pad">' + esc(x.nachricht) + '</div>' : '') +
+        '<p class="gf">Wenn ' + esc(tu.first) + ' nicht rechtzeitig antwortet, läuft die Anfrage ab und du bekommst Bescheid.</p>',
+      footer: '<button class="btn red"' + act('withdraw', { id: x.id }) + '>Anfrage zurückziehen</button>'
+    };
+  };
+  A.actions.withdraw = function (el) { A.send('withdraw', { id: el.dataset.id }, 'Anfrage zurückgezogen', function () { A.state.sheet = null; }); };
+
+  /* Detail einer laufenden Nachhilfe (für beide Seiten) */
+  A.actions.openNH = function (el) { A.state.form.endAsk = false; A.openSheet('nh', { id: el.dataset.id }); };
+  A.sheets.nh = function (d, u) {
+    var x = S.nh(d.id), amTutor = x.tutor === u.id, other = S.user(amTutor ? x.learner : x.tutor);
+    var ask = A.state.form.endAsk;
+    var lessons = x.lessons.length ? x.lessons.slice().reverse().map(function (l) {
+      return '<div class="it"><span class="k">' + esc(l.date) + ' · ' + l.dur + ' Min' + (l.probe ? ' · Probe' : '') + '</span>' + (l.state === 'bestaetigt' ? U.pill('bestätigt', 'ok') : l.state === 'bestritten' ? U.pill('stimmt nicht', 'red') : U.pill('wartet', 'wait')) + '</div>';
+    }).join('') : '<div class="it"><span class="k" style="color:var(--nh-text-2)">Noch keine Stunde eingetragen</span></div>';
+    return {
+      title: '', tall: true, left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>',
+      body: '<div class="phead">' + U.av(other, 'l') + '<div class="n">' + esc(other.name) + '</div><div class="s">' + esc(U.kl(other.klasse)) + ' · ' + esc(NH.SUBJECTS[x.fach].name) + ' · ' + (x.state === 'probe' ? 'Probephase' : 'läuft seit ' + esc(x.created)) + '</div></div>' +
+        '<div class="grp"><button class="it link"' + act('teams', { name: other.first }) + '>' + U.ic('chat') + 'In Teams schreiben</button></div>' +
+        '<p class="gf">Verabredet Zeit und Ort im Chat. Treffen nur in der Schule oder online über Teams.</p>' +
+        '<h3 class="gh">Stunden</h3><div class="grp">' + lessons + (amTutor ? '<button class="it link"' + act('logLessonFor', { id: x.id }) + '>' + U.ic('plus') + 'Stunde eintragen</button>' : '') + '</div>' +
+        '<h3 class="gh">Probleme?</h3><div class="grp"><button class="it"' + act('openReport', { kind: 'regeln', about: amTutor ? 'nehmend' : 'tutor', id: other.id }) + '>' + U.ic('flag') + esc(other.first) + ' melden</button>' +
+        (ask ? '' : '<button class="it red"' + act('endAsk') + '>' + U.ic('info') + 'Nachhilfe beenden</button>') + '</div>' +
+        (ask ? '<div class="note danger" style="margin-top:12px"><div><b>Wirklich beenden?</b> Der Platz wird frei. ' + esc(other.first) + ' bekommt eine kurze Nachricht ohne Grund.<div class="acts"><button class="pb red"' + act('endNH', { id: x.id }) + '>Ja, beenden</button><button class="pb sec"' + act('endAskNo') + '>Abbrechen</button></div></div></div>' : '')
+    };
+  };
+  A.actions.teams = function (el) { A.toast('In der echten App öffnet sich jetzt der Teams-Chat mit ' + el.dataset.name + '.', { icon: 'chat', ms: 3200 }); };
+  A.actions.endAsk = function () { A.state.form.endAsk = true; A.render(); };
+  A.actions.endAskNo = function () { A.state.form.endAsk = false; A.render(); };
+  A.actions.endNH = function (el) { A.send('end', { id: el.dataset.id }, 'Nachhilfe beendet', function () { A.state.sheet = null; }); };
+
+  /* ---------- Profil ---------- */
+  function profile(u) {
+    var canTutor = S.lvl(u.klasse) >= 8;
+    var h = '<div class="phead" style="padding-top:8px">' + U.av(u, 'l') + '<div class="n">' + esc(u.name) + '</div><div class="s">' + esc(U.kl(u.klasse)) + ' · aus deinem Schulkonto</div></div>';
+    h += '<div class="grp"><button class="it"' + act('openAvatar') + '><span class="k">Avatar ändern</span>' + U.ic('right', 'xs', ' style="color:#B4B8C4"') + '</button>' +
+      '<div class="it"><span class="k">Einwilligung der Eltern</span>' + (u.consent ? U.pill('liegt vor', 'ok') : U.pill('fehlt noch', 'wait')) + '</div></div>';
+    if (!u.consent) h += '<p class="gf">Deine Eltern bekommen ein Formular von der Schule. Sobald Frau Keller es eingetragen hat, kannst du anfragen.</p>';
+    h += '<h3 class="gh">Tutor werden</h3><div class="grp">' + (canTutor && u.roles.indexOf('tutor') < 0 && u.roles.indexOf('bewerber') < 0 ? '<button class="it link"' + act('startApply') + '>' + U.ic('hand') + 'Selbst Nachhilfe geben</button>' : '<div class="it"><span class="k" style="color:var(--nh-text-2)">' + (canTutor ? 'Du bist schon Tutor oder hast dich beworben.' : 'Tutor werden geht ab Klasse 8.') + '</span></div>') + '</div>';
+    h += '<h3 class="gh">Infos</h3><div class="grp"><button class="it"' + act('openRules') + '><span class="k">Regeln und Verhaltenskodex</span>' + U.ic('right', 'xs', ' style="color:#B4B8C4"') + '</button><button class="it"' + act('openPrivacy') + '><span class="k">Datenschutzhinweis</span>' + U.ic('right', 'xs', ' style="color:#B4B8C4"') + '</button><button class="it"' + act('help') + '><span class="k">Hilfe und Melden</span>' + U.ic('right', 'xs', ' style="color:#B4B8C4"') + '</button></div>';
+    h += '<h3 class="gh">Konto</h3><div class="grp"><button class="it red"' + act('openLeave') + '>nachhilfly verlassen</button></div><p class="gf">Löscht dein Profil und beendet alle Nachhilfen. Du kannst jederzeit neu anfangen.</p>';
+    return { title: 'Profil', html: h, grey: true };
+  }
+  A.profileScreen = profile;
+  A.actions.openAvatar = function () { A.state.form.av = A.me().av; A.openSheet('avatar'); };
+  A.sheets.avatar = function (d, u) {
+    return {
+      title: 'Avatar', right: '<button class="tbtn b"' + act('saveAvatar') + '>Fertig</button>',
+      body: avPick(u, A.state.form.av) + '<p class="gf">Statt Fotos gibt es Avatare. So bleibt dein Gesicht privat.</p>'
+    };
+  };
+  function avPick(u, sel) { return '<div class="avpick" style="margin-top:8px">' + NH.AVATARS.map(function (a, i) { return '<button' + act('pickAv', { v: i }) + ' aria-pressed="' + (sel === i) + '" aria-label="Avatar ' + (i + 1) + '">' + U.av({ name: u.name, av: i }) + '</button>'; }).join('') + '</div>'; }
+  A.avPick = avPick;
+  A.actions.pickAv = function (el) { A.state.form.av = Number(el.dataset.v); if (A.state.form.reg) A.state.form.reg.av = Number(el.dataset.v); A.render(); };
+  A.actions.saveAvatar = function () { A.me().av = A.state.form.av; A.closeSheet(); A.toast('Avatar gespeichert'); };
+  A.actions.openLeave = function () { A.openSheet('leave'); };
+  A.sheets.leave = function () {
+    return {
+      title: 'nachhilfly verlassen',
+      body: '<div class="grp pad" style="margin-top:8px">Dein Profil wird gelöscht, alle Anfragen und Nachhilfen werden beendet. Deine Tutoren bekommen eine kurze Nachricht ohne Grund. Deine Einwilligung gilt als widerrufen.</div><p class="gf">Bestätigte Stunden bleiben bis zum Schuljahresende für Bescheinigungen gespeichert und werden dann gelöscht.</p>',
+      footer: '<button class="btn red"' + act('leave') + '>Endgültig verlassen</button>'
+    };
+  };
+  A.actions.leave = function () { A.send('leave', {}, 'Du hast nachhilfly verlassen', function () { A.state.sheet = null; A.state.form = {}; }); };
+
+  /* ---------- Regeln, Datenschutz, Hilfe & Melden ---------- */
+  var KODEX = ['Treffen nur in der Schule oder online über Teams. Keine Treffen zuhause.', 'Online nur Montag bis Freitag bis 19 Uhr.', 'Die Kamera ist freiwillig. Keine Aufnahmen.', 'Kein Kontakt über Instagram, WhatsApp, Snapchat und keine privaten Nummern.', 'Geld nur nach der Stunde, nie im Voraus. Die Probestunde ist kostenlos.'];
+  A.KODEX = KODEX;
+  function kodexHtml() { return '<div class="kodex"><ul>' + KODEX.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul></div>'; }
+  A.kodexHtml = kodexHtml;
+  A.actions.openRules = function () { A.openSheet('rules'); };
+  A.sheets.rules = function () { return { title: 'Regeln', left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>', body: '<h3 class="gh" style="margin-top:8px">Verhaltenskodex</h3>' + kodexHtml() + '<p class="gf">Wer sich nicht daran hält, kann ausgesetzt werden. Bei etwas Unangenehmem: Hilfe und Melden.</p>' }; };
+  A.actions.openPrivacy = function () { A.openSheet('privacy'); };
+  A.sheets.privacy = function () {
+    return {
+      title: 'Datenschutz', left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>',
+      body: '<div class="grp pad" style="margin-top:8px;font-size:15px">Entwurf. Der echte Text wird mit dem Datenschutzbeauftragten der Schule geschrieben.</div>' +
+        '<div class="grp" style="margin-top:12px"><div class="it"><span class="k">Verantwortlich</span><span class="v">die Schule</span></div><div class="it"><span class="k">Zweck</span><span class="v">Nachhilfe vermitteln</span></div><div class="it"><span class="k">Grundlage</span><span class="v">Einwilligung</span></div><div class="it"><span class="k">Wer sieht was</span><span class="v">nur Beteiligte</span></div><div class="it"><span class="k">Löschung</span><span class="v">spätestens Schuljahresende</span></div></div>' +
+        '<p class="gf">Du kannst jederzeit Auskunft verlangen, Daten löschen lassen und deine Einwilligung widerrufen („nachhilfly verlassen“).</p>'
+    };
+  };
+  A.actions.help = function () { A.openSheet('help'); };
+  A.sheets.help = function () {
+    return {
+      title: 'Hilfe und Melden', left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>',
+      body: '<h3 class="gh" style="margin-top:8px">Etwas ist passiert?</h3><div class="grp">' +
+        '<button class="it"' + act('openReport', { kind: 'kinderschutz' }) + '>' + U.ic('shield') + '<span class="k">Ich fühle mich unwohl</span>' + U.ic('right', 'xs', ' style="color:#B4B8C4"') + '</button>' +
+        '<button class="it"' + act('openReport', { kind: 'regeln' }) + '>' + U.ic('flag') + '<span class="k">Problem mit Regeln oder der App</span>' + U.ic('right', 'xs', ' style="color:#B4B8C4"') + '</button></div>' +
+        '<p class="gf">„Ich fühle mich unwohl“ liest nur die Kinderschutz-Ansprechperson der Schule. Niemand aus der SMV sieht das.</p>' +
+        '<h3 class="gh">Ansprechpersonen</h3><div class="grp"><div class="it"><span class="k">Kinderschutz</span><span class="v">Frau Keller</span></div><div class="it"><span class="k">Vertrauenslehrerin</span><span class="v">Frau Albrecht</span></div><div class="it"><span class="k">Vertrauenslehrer</span><span class="v">Herr Yilmaz</span></div><div class="it"><span class="k">SMV</span><span class="v">SMV-Raum, große Pause</span></div></div><p class="gf">Namen sind Beispiele.</p>' +
+        '<h3 class="gh">Regeln</h3>' + kodexHtml()
+    };
+  };
+  A.actions.openReport = function (el) { A.state.form.rep = { kind: el.dataset.kind, about: el.dataset.about || '', id: el.dataset.id || '', grund: null, text: '' }; A.openSheet('report'); };
+  var GRUENDE = ['Nicht erschienen', 'Unpassende Nachrichten', 'Streit ums Geld', 'Etwas anderes'];
+  A.sheets.report = function () {
+    var R = A.state.form.rep, ks = R.kind === 'kinderschutz', who = R.id ? S.user(R.id) : null;
+    return {
+      title: ks ? 'Vertraulich melden' : 'Problem melden', tall: true,
+      body: (ks ? U.note('<b>Das liest nur Frau Keller</b>, die Kinderschutz-Ansprechperson. Niemand aus der SMV sieht es. Du kannst auch einfach direkt zu ihr gehen.', 'ok', 'shield') : (who ? '<div class="grp" style="margin-top:8px"><div class="it"><span class="k">Es geht um</span><span class="v">' + esc(who.name) + '</span></div></div>' : '')) +
+        (ks ? '' : '<h3 class="gh">Was ist passiert?</h3><div class="chips wrap" style="margin:0 16px">' + GRUENDE.map(function (g) { return U.chip(esc(g), R.grund === g, act('repGrund', { v: g })); }).join('') + '</div>') +
+        '<h3 class="gh">' + (ks ? 'Erzähl, was passiert ist' : 'Beschreibung') + '</h3><div class="field' + (R.err ? ' err' : '') + '"><textarea id="repText" rows="5" maxlength="600" data-model="rep.text" data-count="repCnt" placeholder="' + (ks ? 'Du musst nicht alles schreiben. Ein Satz reicht.' : 'Kurz und sachlich') + '">' + esc(R.text) + '</textarea><div class="cnt" id="repCnt">' + R.text.length + ' / 600</div></div>' +
+        (R.err ? '<p class="err-t">Bitte schreib kurz, worum es geht.</p>' : '') +
+        '<p class="gf">' + (ks ? 'Die Meldung wird nicht in der App gespeichert, sondern direkt weitergeleitet.' : 'Das Leitungsteam sieht die Meldung ohne deinen Namen. Die Lehrkraft sieht deinen Namen.') + '</p>',
+      footer: '<button class="btn"' + act('sendReport') + '>' + (ks ? 'Vertraulich senden' : 'Meldung senden') + '</button>'
+    };
+  };
+  A.actions.repGrund = function (el) { A.state.form.rep.grund = el.dataset.v; A.render(); };
+  A.actions.sendReport = function () {
+    var R = A.state.form.rep;
+    if (!R.text.trim()) { R.err = true; A.render(); return; }
+    A.send('report', { kind: R.kind, about: R.about, aboutId: R.id, grund: R.grund || 'Etwas anderes', text: R.text }, R.kind === 'kinderschutz' ? 'Gesendet. Frau Keller meldet sich bei dir.' : 'Meldung gesendet', function () { A.state.sheet = null; });
+  };
+
+  /* ---------- Erstes Öffnen und Registrierung ---------- */
+  A.areas.reg = {
+    screen: function (tab, u) {
+      var R = A.f('reg', { step: 0, as: null, av: u.av, rules: false, privacy: false });
+      var under = S.lvl(u.klasse) <= 8, total = under ? 4 : 3;
+      var steps = '<div class="steps" aria-hidden="true">' + Array.apply(null, Array(total)).map(function (_, i) { return '<span class="' + (i <= R.step ? 'f' : '') + '"></span>'; }).join('') + '</div>';
+      var h = '';
+      if (R.step === 0) {
+        h = '<p class="lsub">Nachhilfe von Schülern deiner Schule. Organisiert von der SMV.</p><div class="welcome-pts">' +
+          wp('people', 'Tutoren aus deiner Schule', 'Ältere Schüler, die das Leitungsteam persönlich bestätigt hat.') +
+          wp('sparkle', 'Erste Stunde kostenlos', 'Erst ausprobieren, dann entscheiden. Danach legt jeder Tutor seinen Preis selbst fest.') +
+          wp('shield', 'Sicher und vertraulich', 'Niemand sieht, wer Nachhilfe nimmt. Bei Problemen hilft eine Lehrkraft.') + '</div>' +
+          '<div class="bwrap" style="margin-top:18px"><button class="btn"' + act('regAs', { as: 'nehmend' }) + '>Ich möchte Nachhilfe bekommen</button><button class="btn sec"' + act('regAs', { as: 'tutor' }) + '>Ich möchte Nachhilfe geben</button></div>' +
+          (R.tooYoung ? U.note('Nachhilfe geben geht ab Klasse 8. Du kannst aber schon Nachhilfe bekommen.', 'wait') : '');
+        return { title: 'Willkommen bei nachhilfly', html: h };
+      }
+      if (R.step === 1) {
+        h = steps + '<p class="lsub" style="margin-top:14px">Wähle ein Bild für dich. Fotos gibt es hier nicht.</p>' + avPick(u, R.av) +
+          '<h3 class="gh">Aus deinem Schulkonto</h3><div class="grp"><div class="it"><span class="k">Name</span><span class="v">' + esc(u.name) + '</span></div><div class="it"><span class="k">Klasse</span><span class="v">' + esc(U.kl(u.klasse)) + '</span></div></div>' +
+          '<p class="gf">Stimmt deine Klasse nicht? Sag es der SMV, die Lehrkraft ändert sie.</p><div class="bwrap"><button class="btn"' + act('regNext') + '>Weiter</button></div>';
+        return { title: 'Dein Avatar', html: h, grey: true };
+      }
+      if (R.step === 2) {
+        h = steps + '<h3 class="gh" style="margin-top:16px">So läuft es bei uns</h3>' + kodexHtml() +
+          '<div class="grp" style="margin-top:16px">' + cbRow('rules', R.rules, 'Ich halte mich an die Regeln.') + cbRow('privacy', R.privacy, 'Ich habe den <button class="tbtn" style="height:auto;padding:0;font-size:16px"' + act('openPrivacy') + '>Datenschutzhinweis</button> gelesen' + (under ? '.' : ' und bin einverstanden.')) + '</div>' +
+          (under ? '<p class="gf">Weil du unter 14 sein kannst, müssen auch deine Eltern zustimmen.</p>' : '') +
+          '<div class="bwrap"><button class="btn"' + act('regNext') + (R.rules && R.privacy ? '' : ' disabled') + '>Weiter</button></div>';
+        return { title: 'Regeln', html: h, grey: true };
+      }
+      h = steps + '<div class="welcome-pts" style="margin-top:22px">' + wp('lock', 'Deine Eltern bekommen ein Formular', 'Die Schule schickt es über den üblichen Weg. Sobald es zurück ist, trägt Frau Keller das ein.') + wp('search', 'Bis dahin kannst du stöbern', 'Du siehst alle Tutoren. Anfragen geht, sobald die Zustimmung da ist.') + (R.as === 'tutor' ? wp('hand', 'Als Nächstes: deine Bewerbung', 'Du füllst deinen Steckbrief aus. Das Leitungsteam lädt dich zu einem kurzen Gespräch ein.') : '') + '</div>' +
+        '<div class="bwrap" style="margin-top:18px"><button class="btn"' + act('regFinish') + '>' + (R.as === 'tutor' ? 'Zur Bewerbung' : 'Los geht’s') + '</button></div>';
+      return { title: 'Fast geschafft', html: h };
+    }
+  };
+  function wp(icon, a, b) { return '<div class="wp"><div class="ico">' + U.ic(icon) + '</div><div><b>' + esc(a) + '</b><span>' + esc(b) + '</span></div></div>'; }
+  A.wp = wp;
+  function cbRow(k, on, html) { return '<div class="cbrow"><button class="cb" role="checkbox" aria-checked="' + !!on + '"' + act('regCb', { k: k }) + ' aria-label="Bestätigen">' + (on ? U.ic('check', 's', ' style="stroke-width:2.6"') : '') + '</button><div>' + html + '</div></div>'; }
+  A.cbRow = cbRow;
+  A.actions.regAs = function (el) {
+    var R = A.state.form.reg, u = A.me();
+    if (el.dataset.as === 'tutor' && S.lvl(u.klasse) < 8) { R.tooYoung = true; A.render(); return; }
+    R.as = el.dataset.as; R.step = 1; A.state.scroll = {}; A.render();
+  };
+  A.actions.regCb = function (el) { var R = A.state.form.reg; R[el.dataset.k] = !R[el.dataset.k]; A.render(); };
+  A.actions.regNext = function () {
+    var R = A.state.form.reg, u = A.me(), under = S.lvl(u.klasse) <= 8;
+    if (R.step === 2 && !under) { A.actions.regFinish(); return; }
+    R.step += 1; A.render();
+  };
+  A.actions.regFinish = function () {
+    var R = A.state.form.reg;
+    A.send('register', { as: R.as, av: R.av }, R.as === 'tutor' ? 'Willkommen! Jetzt deine Bewerbung.' : 'Willkommen bei nachhilfly', function () { A.state.form.reg = null; A.state.form.find = null; });
+  };
+})();
+
+/* js/screens-tutor.js */
+/* nachhilfly Prototyp v2 – Tutor: Bewerbung, Status, Lehrmethoden, Übersicht, Anfragen, Schüler, Steckbrief */
+(function () {
+  var A = NH.app, U = NH.ui, S = NH.svc, act = U.act, esc = U.esc;
+  var SLOTS = ['Mi, 4.11., 13:15', 'Do, 5.11., 13:15', 'Fr, 6.11., 12:30', 'Mo, 9.11., 13:15'];
+  var DAYDATE = { Mo: 'Mo, 2.11.', Di: 'Di, 3.11.', Mi: 'Mi, 4.11.', Do: 'Do, 5.11.', Fr: 'Fr, 6.11.' };
+  var ORT = [['vor Ort'], ['online'], ['vor Ort', 'online']];
+  function db() { return S.db; }
+  function myApp(id) { return db().applications.find(function (a) { return a.user === id && a.state !== 'zurueckgezogen'; }); }
+  function mine(id, states) { return db().nachhilfen.filter(function (x) { return x.tutor === id && states.indexOf(x.state) >= 0; }); }
+  function arr(v, x) { var i = v.indexOf(x); if (i >= 0) v.splice(i, 1); else v.push(x); }
+
+  /* ---------- Bewerbung (Assistent) ---------- */
+  function draftFrom(u, a) {
+    var d = a ? a.draft : null;
+    return {
+      step: a ? 1 : 0, edit: !!a, appId: a ? a.id : null, err: {},
+      bio: d ? d.bio : '', subjects: d ? d.subjects.slice() : [], stufen: d ? range(d.stufen) : [], art: d ? d.art.slice() : [],
+      ort: d ? (d.ort.length > 1 ? 2 : d.ort[0] === 'online' ? 1 : 0) : 0,
+      times: d ? d.times.map(function (z) { return z[0] + ' ' + z[1]; }) : [], cap: d ? d.cap : 2,
+      free: d ? d.price === 0 : false, price: d && d.price ? d.price : 10, slots: a ? (a.slots || []).slice() : [], rules: !!a, methods: !!a
+    };
+  }
+  function range(r) { var o = []; for (var i = r[0]; i <= r[1]; i++) o.push(i); return o; }
+  A.actions.startApply = function () { var u = A.me(); if (u.roles.indexOf('bewerber') < 0) u.roles.push('bewerber'); u.view = 'bewerber'; A.state.form.apply = draftFrom(u, null); A.state.scroll = {}; A.render(); };
+
+  function wizard(u) {
+    var W = A.f('apply', function () { return draftFrom(u, null); }), e = W.err || {};
+    var titles = ['Tutor werden', 'Über dich', 'Was du anbietest', 'Wann und wie viel', 'Kennenlerngespräch', 'Vorschau'];
+    var steps = W.step ? '<div class="steps" aria-hidden="true">' + [1, 2, 3, 4, 5].map(function (i) { return '<span class="' + (i <= W.step ? 'f' : '') + '"></span>'; }).join('') + '</div>' : '';
+    var back = W.step > (W.edit ? 1 : 0) ? '<button class="btn sec"' + act('wzBack') + '>Zurück</button>' : '';
+    var maxK = Math.min(10, S.lvl(u.klasse) - 1), ks = []; for (var k = 5; k <= maxK; k++) ks.push(k);
+    var h = steps;
+    if (W.step === 0) {
+      h += '<p class="lsub">Du hilfst Jüngeren und bekommst eine Bescheinigung der Schule für deine Stunden.</p><div class="welcome-pts">' +
+        A.wp('clock', '1 bis 3 Stunden pro Woche', 'Du legst Zeiten, Plätze und Preis selbst fest und kannst jederzeit pausieren.') +
+        A.wp('people', 'Kurzes Kennenlerngespräch', 'Etwa 10 Minuten mit dem Leitungsteam. Keine Noten, kein Test, nur ein kleines Erklär-Beispiel.') +
+        A.wp('card', 'Dann ist dein Steckbrief sichtbar', 'Jüngere Schüler finden dich und fragen an. Du entscheidest, wen du annimmst.') + '</div>' +
+        (u.consent ? '' : U.note('Weil du unter 14 sein kannst, müssen auch deine Eltern zustimmen. Du kannst dich trotzdem schon bewerben.', 'wait', 'lock')) +
+        '<div class="bwrap" style="margin-top:12px"><button class="btn"' + act('wzNext') + '>Bewerbung starten</button></div>';
+      return { title: titles[0], html: h };
+    }
+    if (W.step === 1) {
+      h += '<h3 class="gh" style="margin-top:16px">Dein Avatar</h3>' + A.avPick(u, u.av) +
+        '<h3 class="gh">Kurztext über dich</h3><div class="field' + (e.bio ? ' err' : '') + '"><textarea id="wzBio" rows="4" maxlength="200" data-model="apply.bio" data-count="wzCnt" placeholder="Wie erklärst du? Was magst du an deinem Fach?">' + esc(W.bio) + '</textarea><div class="cnt" id="wzCnt">' + W.bio.length + ' / 200</div></div>' +
+        (e.bio ? '<p class="err-t">' + esc(e.bio) + '</p>' : '') + '<p class="gf">Keine Kontaktdaten, keine Links, keine Social-Media-Namen.</p>';
+    } else if (W.step === 2) {
+      h += '<h3 class="gh" style="margin-top:16px">Fächer</h3><div class="chips wrap" style="margin:0 16px">' + Object.keys(NH.SUBJECTS).map(function (c) { return U.chip(esc(NH.SUBJECTS[c].name), W.subjects.indexOf(c) >= 0, act('wzArr', { k: 'subjects', v: c })); }).join('') + '</div>' + (e.subjects ? '<p class="err-t">Wähle mindestens ein Fach.</p>' : '') +
+        '<h3 class="gh">Für welche Klassen?</h3><div class="chips wrap" style="margin:0 16px">' + ks.map(function (k) { return U.chip('Klasse ' + k, W.stufen.indexOf(k) >= 0, act('wzArr', { k: 'stufen', v: k, n: 1 })); }).join('') + '</div>' + (e.stufen ? '<p class="err-t">Wähle mindestens eine Klasse.</p>' : '') + '<p class="gf">Nur Klassen unter deiner eigenen.</p>' +
+        '<h3 class="gh">Wobei hilfst du?</h3><div class="chips wrap" style="margin:0 16px">' + NH.ANLIEGEN.map(function (a) { return U.chip(esc(a), W.art.indexOf(a) >= 0, act('wzArr', { k: 'art', v: a })); }).join('') + '</div>' + (e.art ? '<p class="err-t">Wähle mindestens eins.</p>' : '') +
+        '<h3 class="gh">Wo?</h3>' + U.sg([{ l: 'vor Ort', on: W.ort === 0 }, { l: 'online', on: W.ort === 1 }, { l: 'beides', on: W.ort === 2 }], { act: 'wzOrt' });
+    } else if (W.step === 3) {
+      h += '<h3 class="gh" style="margin-top:16px">Wann hast du Zeit?</h3><div class="grid5"><span></span>' + NH.TAGE.map(function (t) { return '<span class="h">' + t + '</span>'; }).join('') +
+        NH.ZEITEN.map(function (z) { return '<span class="tl">' + z + '</span>' + NH.TAGE.map(function (t) { var key = t + ' ' + z; return '<button class="tslot"' + act('wzArr', { k: 'times', v: key }) + ' aria-pressed="' + (W.times.indexOf(key) >= 0) + '" aria-label="' + t + ' ' + z + ' Uhr"></button>'; }).join(''); }).join('') + '</div>' +
+        (e.times ? '<p class="err-t">Wähle mindestens eine Zeit.</p>' : '') + '<p class="gf">Online-Nachhilfe nur Montag bis Freitag bis 19 Uhr.</p>' +
+        '<h3 class="gh">Wie viele feste Schüler?</h3><div class="grp"><div class="it"><span class="k">Schüler insgesamt</span>' + stepper('cap', W.cap, 1, 5) + '</div></div>' +
+        '<h3 class="gh">Preis</h3><div class="grp"><div class="it"><span class="k">Kostenlos</span>' + U.sw(W.free, act('wzFree'), 'Kostenlos') + '</div>' +
+        (W.free ? '' : '<div class="it"><span class="k">Pro Stunde (60 Min)</span>' + stepper('price', W.price, 5, 20, ' €') + '</div>') + '</div>' +
+        '<p class="gf">Empfehlung: 8 bis 12 € pro Stunde. Wer viel Erfahrung hat, kann auch etwas mehr nehmen. Die Probestunde ist immer kostenlos, bezahlt wird nach der Stunde.</p>';
+    } else if (W.step === 4) {
+      h += '<p class="lsub" style="margin-top:14px">Wähle 2 bis 3 Termine. Das Leitungsteam sucht einen davon aus. Das Gespräch dauert etwa 10 Minuten im SMV-Raum.</p><div class="chips wrap" style="margin:0 16px">' + SLOTS.map(function (s) { return U.chip(esc(s) + ' Uhr', W.slots.indexOf(s) >= 0, act('wzArr', { k: 'slots', v: s })); }).join('') + '</div>' + (e.slots ? '<p class="err-t">Bitte wähle mindestens 2 Termine.</p>' : '');
+    } else {
+      var t = toTutor(u, W);
+      h += '<h3 class="gh" style="margin-top:16px">So sehen andere deinen Eintrag</h3><div style="background:#FFFFFF">' + previewRow(u, t) + '</div>' +
+        '<h3 class="gh">Bestätigen</h3><div class="grp">' + cb('rules', W.rules, 'Ich halte mich an die Regeln und den Verhaltenskodex.') + cb('methods', W.methods, 'Ich lese vor dem Gespräch die Lehrmethoden.') + '</div>' +
+        (e.confirm ? '<p class="err-t">Bitte beides bestätigen.</p>' : '') + '<p class="gf">Nach dem Abschicken kannst du den Steckbrief bis zum Gespräch noch ändern.</p>';
+    }
+    var nextLabel = W.step === 5 ? (W.edit ? 'Änderungen speichern' : 'Bewerbung abschicken') : 'Weiter';
+    h += '<div class="bwrap"><button class="btn"' + act('wzNext') + '>' + nextLabel + '</button>' + back + (W.edit ? '<button class="btn sec"' + act('wzCancel') + '>Abbrechen</button>' : '') + '</div>';
+    return { title: titles[W.step], html: h, grey: true };
+  }
+  function cb(k, on, text) { return '<div class="cbrow"><button class="cb" role="checkbox" aria-checked="' + !!on + '"' + act('wzCb', { k: k }) + ' aria-label="Bestätigen">' + (on ? U.ic('check', 's', ' style="stroke-width:2.6"') : '') + '</button><div>' + esc(text) + '</div></div>'; }
+  function stepper(k, v, min, max, unit) { return '<span class="stepper"><button' + act('wzStep', { k: k, d: -1, min: min, max: max }) + (v <= min ? ' disabled' : '') + ' aria-label="weniger">−</button><span>' + v + (unit || '') + '</span><button' + act('wzStep', { k: k, d: 1, min: min, max: max }) + (v >= max ? ' disabled' : '') + ' aria-label="mehr">+</button></span>'; }
+  function toTutor(u, W) {
+    var st = W.stufen.slice().sort(function (a, b) { return a - b; });
+    return { id: u.id, s: W.subjects[0] || 'Ma', subjects: W.subjects.slice(), stufen: st.length ? [st[0], st[st.length - 1]] : [5, 5], ort: ORT[W.ort].slice(), times: W.times.map(function (k) { var p = k.split(' '); return [p[0], p[1]]; }), price: W.free ? 0 : W.price, cap: W.cap, art: W.art.slice(), bio: W.bio, badges: [], hours: 0, state: 'aktiv' };
+  }
+  function previewRow(u, t) {
+    var d = t.times.map(function (x) { return x[0]; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(', ');
+    return '<div class="row static">' + U.ban(t.s) + U.av(u) + '<div style="min-width:0"><div class="t1">' + esc(u.name) + '</div><div class="t2">' + esc(U.kl(u.klasse)) + ' · ' + esc(t.ort.join(', ')) + '</div><div class="t2" style="margin-top:2px">' + esc(d || 'keine Zeiten') + '</div></div><div><div class="r1">' + U.price(t.price) + '</div><div class="r2" style="color:var(--nh-ok)">' + t.cap + (t.cap === 1 ? ' Platz frei' : ' Plätze frei') + '</div></div>' + U.ic('right', 'xs chev') + '</div>';
+  }
+  A.actions.wzArr = function (el) { var W = A.state.form.apply, v = el.dataset.n ? Number(el.dataset.v) : el.dataset.v; arr(W[el.dataset.k], v); W.err = {}; A.render(); };
+  A.actions.wzOrt = function (el) { A.state.form.apply.ort = Number(el.dataset.v); A.render(); };
+  A.actions.wzFree = function () { var W = A.state.form.apply; W.free = !W.free; A.render(); };
+  A.actions.wzStep = function (el) { var W = A.state.form.apply, k = el.dataset.k; W[k] = Math.max(Number(el.dataset.min), Math.min(Number(el.dataset.max), W[k] + Number(el.dataset.d))); A.render(); };
+  A.actions.wzCb = function (el) { var W = A.state.form.apply; W[el.dataset.k] = !W[el.dataset.k]; W.err = {}; A.render(); };
+  A.actions.wzBack = function () { A.state.form.apply.step -= 1; A.state.form.apply.err = {}; A.state.scroll = {}; A.render(); };
+  A.actions.wzCancel = function () { A.state.form.apply = null; A.render(); };
+  A.actions.wzNext = function () {
+    var W = A.state.form.apply, e = {};
+    if (W.step === 1) { if (W.bio.trim().length < 20) e.bio = 'Schreib mindestens einen Satz über dich.'; else if (/@|https?:|www\.|\d{5,}|insta/i.test(W.bio)) e.bio = 'Bitte keine Kontaktdaten oder Links.'; }
+    if (W.step === 2) { if (!W.subjects.length) e.subjects = 1; if (!W.stufen.length) e.stufen = 1; if (!W.art.length) e.art = 1; }
+    if (W.step === 3 && !W.times.length) e.times = 1;
+    if (W.step === 4 && W.slots.length < 2) e.slots = 1;
+    if (W.step === 5 && !(W.rules && W.methods)) e.confirm = 1;
+    W.err = e;
+    if (Object.keys(e).length) { A.render(); return; }
+    if (W.step < 5) { W.step += 1; A.state.scroll = {}; A.render(); return; }
+    var u = A.me(), t = toTutor(u, W);
+    var draft = { s: t.s, subjects: t.subjects, stufen: t.stufen, ort: t.ort, times: t.times, price: t.price, cap: t.cap, art: t.art, bio: t.bio };
+    if (W.edit) A.send('updateApp', { id: W.appId, draft: draft, slots: W.slots.slice() }, 'Bewerbung gespeichert', function () { A.state.form.apply = null; });
+    else A.send('apply', { draft: draft, slots: W.slots.slice() }, 'Bewerbung abgeschickt', function () { A.state.form.apply = null; A.setTab('status'); A.state.scroll = {}; });
+  };
+
+  /* ---------- Bereich Bewerber ---------- */
+  A.areas.bewerber = {
+    tabs: function (u) {
+      var a = myApp(u.id);
+      if (!a || A.state.form.apply) return null;
+      return [{ id: 'status', label: 'Status', icon: 'list' }, { id: 'methods', label: 'Lehrmethoden', icon: 'book', badge: '' }, { id: 'card', label: 'Steckbrief', icon: 'card' }];
+    },
+    screen: function (tab, u) {
+      var a = myApp(u.id);
+      if (!a || A.state.form.apply) return wizard(u);
+      return { status: status, methods: methods, card: appCard }[tab](u, a);
+    }
+  };
+  function status(u, a) {
+    var talkDone = ['bestaetigt', 'abgelehnt', 'einspruch', 'endgueltig'].indexOf(a.state) >= 0;
+    var h = '<p class="lsub">Abgeschickt am ' + esc(a.created) + '</p>';
+    if (a.consent === 'fehlt') h += U.note('<b>Die Einwilligung deiner Eltern fehlt noch.</b> Ohne sie kann das Leitungsteam dich nicht bestätigen.', 'wait', 'lock');
+    if (a.state === 'abgelehnt') h += U.note('<b>Deine Bewerbung wurde nicht angenommen.</b><br>' + esc(a.reason || '') + '<br>Du kannst ab Di, 10.11. neu bewerben oder jetzt Einspruch einlegen.<div class="acts"><button class="pb"' + act('openAppeal', { id: a.id }) + '>Einspruch einlegen</button></div>', 'danger');
+    if (a.state === 'einspruch') h += U.note('<b>Dein Einspruch wird geprüft.</b> Ein anderes Mitglied des Leitungsteams entscheidet, nicht die Person, die abgelehnt hat.', '', 'clock');
+    if (a.state === 'endgueltig') h += U.note('<b>Auch nach dem Einspruch abgelehnt.</b> Du kannst dich im nächsten Schuljahr neu bewerben. Fragen? Frau Keller oder die SMV.', 'danger');
+    h += '<div class="prog" style="margin-top:14px">' +
+      pstep('done', '1', 'Bewerbung abgeschickt', 'Dein Steckbrief ist beim Leitungsteam.') +
+      pstep(a.state === 'wartet' ? 'now' : 'done', '2', 'Kennenlerngespräch', a.talk ? a.talk : 'Das Leitungsteam lädt dich innerhalb von 10 Schultagen ein.') +
+      pstep(a.state === 'gespraech' ? 'now' : talkDone ? (a.state === 'bestaetigt' ? 'done' : 'now') : '', '3', 'Entscheidung', 'Danach ist dein Steckbrief für alle sichtbar.') + '</div>';
+    if (a.state === 'gespraech') h += '<h3 class="gh">Für das Gespräch</h3><div class="grp"><div class="it"><span class="k">Wann</span><span class="v">' + esc(a.talk) + '</span></div><div class="it"><span class="k">Dauer</span><span class="v">etwa 10 Minuten</span></div><div class="it"><span class="k">Mitbringen</span><span class="v">nichts</span></div></div><p class="gf">Du erklärst kurz eine Aufgabe aus deinem Fach, so wie du es einem Jüngeren erklären würdest.</p>';
+    if (['wartet', 'gespraech'].indexOf(a.state) >= 0) {
+      h += A.state.form.wdAsk ? '<div class="note danger" style="margin-top:22px"><div><b>Bewerbung wirklich zurückziehen?</b><div class="acts"><button class="pb red"' + act('withdrawApp', { id: a.id }) + '>Ja, zurückziehen</button><button class="pb sec"' + act('wdNo') + '>Abbrechen</button></div></div></div>' : '<div class="grp" style="margin-top:22px"><button class="it red"' + act('wdAsk') + '>Bewerbung zurückziehen</button></div>';
+    }
+    return { title: 'Deine Bewerbung', html: h, grey: true };
+  }
+  function pstep(cls, n, a, b) { return '<div class="pstep ' + cls + '"><div class="dot">' + (cls === 'done' ? U.ic('check', 'xs', ' style="stroke-width:2.8"') : n) + '</div><div><div class="a">' + esc(a) + '</div><div class="b">' + esc(b) + '</div></div></div>'; }
+  A.actions.wdAsk = function () { A.state.form.wdAsk = true; A.render(); };
+  A.actions.wdNo = function () { A.state.form.wdAsk = false; A.render(); };
+  A.actions.withdrawApp = function (el) { A.send('withdrawApp', { id: el.dataset.id }, 'Bewerbung zurückgezogen', function () { A.state.form.wdAsk = false; A.me().view = null; }); };
+  A.actions.openAppeal = function (el) { A.state.form.appeal = ''; A.openSheet('appeal', { id: el.dataset.id }); };
+  A.sheets.appeal = function (d) {
+    return {
+      title: 'Einspruch', body: '<p class="gf" style="margin-top:8px">Schreib, warum die Entscheidung noch einmal geprüft werden soll. Ein anderes Mitglied entscheidet.</p><div class="field" style="margin-top:10px"><textarea id="apText" rows="5" maxlength="400" data-model="appeal" data-count="apCnt"></textarea><div class="cnt" id="apCnt">0 / 400</div></div>',
+      footer: '<button class="btn"' + act('sendAppeal', { id: d.id }) + '>Einspruch senden</button>'
+    };
+  };
+  A.actions.sendAppeal = function (el) { if (!(A.state.form.appeal || '').trim()) { A.toast('Bitte schreib kurz deine Begründung.', { icon: 'info' }); return; } A.send('appeal', { id: el.dataset.id, text: A.state.form.appeal }, 'Einspruch gesendet', function () { A.state.sheet = null; }); };
+
+  function methods(u, a) {
+    var n = a.methods.length;
+    var h = '<p class="lsub">Lies sie vor dem Gespräch. Abhaken hilft dir, den Überblick zu behalten.</p><div class="grp"><div class="it"><span class="k">Gelesen</span><div class="bar" aria-hidden="true">' + NH.METHODS.map(function (m, i) { return '<span class="' + (i < n ? 'f' : '') + '" style="width:12px"></span>'; }).join('') + '</div><span class="v" style="min-width:44px">' + n + ' / 9</span></div></div>';
+    h += '<div class="grp" style="margin-top:16px">' + NH.METHODS.map(function (m, i) {
+      var on = a.methods.indexOf(i) >= 0;
+      return '<div class="cbrow"><button class="cb" role="checkbox" aria-checked="' + on + '"' + act('method', { i: i }) + ' aria-label="Gelesen">' + (on ? U.ic('check', 's', ' style="stroke-width:2.6"') : '') + '</button><div><b style="font-weight:600">' + esc(m[0]) + '</b><div style="color:var(--nh-text-2);font-size:15px;margin-top:2px">' + esc(m[1]) + '</div></div></div>';
+    }).join('') + '</div>';
+    if (n === 9) h += U.note('<b>Alle gelesen.</b> Du bekommst das Abzeichen „Methoden-Profi“, sobald du bestätigt bist.', 'ok', 'sparkle');
+    return { title: 'Lehrmethoden', html: h, grey: true };
+  }
+  A.actions.method = function (el) { A.send('methodRead', { i: Number(el.dataset.i) }, null, null, true); };
+
+  function appCard(u, a) {
+    var t = Object.assign({ id: u.id, badges: [], hours: 0, state: 'aktiv' }, a.draft);
+    var h = '<div style="background:#FFFFFF;margin-top:6px">' + previewRow(u, t) + '</div>';
+    h += a.state === 'wartet' ? '<div class="bwrap"><button class="btn sec"' + act('editApp', { id: a.id }) + '>Steckbrief bearbeiten</button></div><p class="gf" style="margin-top:0">Bis zum Gespräch kannst du alles ändern.</p>' :
+      U.note('Bis zur Entscheidung gesperrt. So bestätigt das Leitungsteam genau das, was es gesehen hat.', '', 'lock');
+    h += A.steckbriefBody(t, u);
+    return { title: 'Dein Steckbrief', html: h, grey: true };
+  }
+  A.actions.editApp = function (el) { var u = A.me(), a = db().applications.find(function (x) { return x.id === el.dataset.id; }); A.state.form.apply = draftFrom(u, a); A.state.scroll = {}; A.render(); };
+
+  /* ---------- Bereich bestätigter Tutor ---------- */
+  A.areas.tutor = {
+    tabs: function (u) {
+      return [{ id: 'home', label: 'Übersicht', icon: 'home' }, { id: 'req', label: 'Anfragen', icon: 'inbox', badge: mine(u.id, ['offen']).length || '' }, { id: 'students', label: 'Schüler', icon: 'people' }, { id: 'card', label: 'Steckbrief', icon: 'card' }];
+    },
+    screen: function (tab, u) { return { home: home, req: requests, students: students, card: card }[tab](u, S.tutor(u.id)); }
+  };
+  function reqRow(x, full) {
+    var lu = S.user(x.learner);
+    return '<div class="row static nochev">' + U.ban(x.fach) + U.av(lu) + '<div style="min-width:0"><div class="t1">' + esc(lu.first) + ', ' + esc(U.kl(lu.klasse)) + '</div><div class="t2">' + esc(x.anliegen) + ' · passt ' + esc((x.zeiten || []).join(', ')) + '</div>' + (x.nachricht ? '<div class="t3">„' + esc(x.nachricht) + '“</div>' : '') +
+      '<div class="t2" style="margin-top:4px">Antwort bis ' + esc(x.deadline) + '</div><div class="acts"><button class="pb"' + act('acceptReq', { id: x.id }) + (full ? ' disabled' : '') + '>Annehmen</button><button class="pb sec"' + act('declineReq', { id: x.id }) + '>Ablehnen</button></div>' + (full ? '<div class="t2" style="margin-top:6px">Alle Plätze belegt. Erhöhe deine Plätze im Steckbrief.</div>' : '') + '</div><span></span></div>';
+  }
+  function home(u, t) {
+    var used = S.used(u.id), open = mine(u.id, ['offen']);
+    var week = [];
+    mine(u.id, ['probe', 'laeuft', 'beendet']).forEach(function (x) { x.lessons.forEach(function (l) { if (/\.11\.$/.test(l.date) && /, [2-6]\.11\.$/.test(l.date)) week.push([x, l]); }); });
+    var h = '<p class="lsub">Hallo ' + esc(u.first) + ' · Woche vom 2. bis 6. November</p>';
+    if (t.state === 'ausgesetzt') h += U.note('<b>Du bist vorläufig ausgesetzt.</b> Dein Steckbrief ist nicht sichtbar. Das Leitungsteam oder Frau Keller meldet sich bei dir.', 'danger', 'lock');
+    if (t.pendingChange) h += U.note('Deine Änderung am Steckbrief wartet auf Freigabe.', '', 'clock');
+    h += '<div class="it"><span class="k">Plätze</span><div class="bar" aria-hidden="true">' + range([1, t.cap]).map(function (i) { return '<span class="' + (i <= used ? 'f' : '') + '"></span>'; }).join('') + '</div><span class="v" style="min-width:100px">' + (used >= t.cap ? used + ' von ' + t.cap + ' · voll' : used + ' von ' + t.cap + ' belegt') + '</span></div>' +
+      '<div class="it"><span class="k">Bestätigte Stunden</span><span class="v">' + String(t.hours).replace('.', ',') + '</span></div>' +
+      (t.state !== 'ausgesetzt' ? '<div class="it"><span class="k">Pause</span>' + U.sw(t.state === 'pausiert', act('togglePause'), 'Pause') + '</div>' : '');
+    if (t.state === 'pausiert') h += '<p class="foot in">Du bekommst keine neuen Anfragen. Deine Schüler bleiben.</p>';
+    if (open.length) h += '<h2 class="sh">Neue Anfrage' + (open.length > 1 ? 'n · ' + open.length : '') + '</h2>' + open.slice(0, 1).map(function (x) { return reqRow(x, used >= t.cap); }).join('') + (open.length > 1 ? '<button class="it link"' + act('tab', { tab: 'req' }) + '>Alle Anfragen ansehen</button>' : '');
+    h += '<h2 class="sh">Stunden diese Woche</h2>' + week.map(function (p) {
+      var x = p[0], l = p[1], lu = S.user(x.learner);
+      return '<div class="row static nochev">' + U.ban(x.fach) + U.av(lu) + '<div style="min-width:0"><div class="t1">' + esc(lu.first) + ', ' + esc(U.kl(lu.klasse)) + '</div><div class="t2">' + esc(l.date) + ' · ' + (l.probe ? 'Probestunde · ' : '') + l.dur + ' Min · ' + esc(l.ort) + '</div><div class="t2" style="margin-top:2px;color:' + (l.state === 'bestaetigt' ? 'var(--nh-ok)' : l.state === 'bestritten' ? 'var(--nh-danger)' : 'var(--nh-wait)') + '">' + (l.state === 'bestaetigt' ? 'bestätigt' : l.state === 'bestritten' ? lu.first + ' sagt: stimmt nicht' : 'wartet auf ' + esc(lu.first)) + '</div></div><span class="chk ' + (l.state === 'bestaetigt' ? 'y' : 'n') + '">' + (l.state === 'bestaetigt' ? U.ic('check', 'xs', ' style="stroke-width:2.8"') : '') + '</span></div>';
+    }).join('') + (week.length ? '' : '<p class="foot">Diese Woche noch keine Stunden.</p>') +
+      (mine(u.id, ['probe', 'laeuft']).length ? '<button class="it add"' + act('logLesson') + '>' + U.ic('plus') + 'Stunde eintragen</button>' : '') +
+      '<p class="foot">Eine Stunde zählt, sobald dein Schüler sie abhakt. Beispieldaten, Namen erfunden.</p>';
+    return { title: 'Übersicht', html: h };
+  }
+  A.actions.togglePause = function () { var t = S.tutor(A.state.role); A.send('pause', { on: t.state !== 'pausiert' }, t.state !== 'pausiert' ? 'Pause gestartet' : 'Willkommen zurück', null, true); };
+  A.actions.acceptReq = function (el) { var x = S.nh(el.dataset.id); A.send('accept', { id: x.id }, S.user(x.learner).first + ' ist jetzt dein Schüler. Verabredet die Probestunde im Chat.'); };
+  A.actions.declineReq = function (el) { A.state.form.decl = null; A.openSheet('decline', { id: el.dataset.id }); };
+  A.sheets.decline = function (d) {
+    var x = S.nh(d.id), lu = S.user(x.learner), sel = A.state.form.decl;
+    var opts = ['Keine Zeit mehr', 'Passt fachlich nicht', 'Ohne Grund'];
+    return {
+      title: 'Anfrage ablehnen', body: '<p class="gf" style="margin-top:8px">' + esc(lu.first) + ' bekommt Bescheid und kann jemand anderen anfragen. Der Grund ist freiwillig.</p><div class="chips wrap" style="margin:12px 16px 0">' + opts.map(function (o) { return U.chip(esc(o), sel === o, act('declPick', { v: o })); }).join('') + '</div>',
+      footer: '<button class="btn red"' + act('sendDecline', { id: d.id }) + '>Ablehnen</button>'
+    };
+  };
+  A.actions.declPick = function (el) { A.state.form.decl = el.dataset.v; A.render(); };
+  A.actions.sendDecline = function (el) { A.send('decline', { id: el.dataset.id, reason: A.state.form.decl }, 'Anfrage abgelehnt', function () { A.state.sheet = null; }); };
+
+  function requests(u, t) {
+    var open = mine(u.id, ['offen']), used = S.used(u.id);
+    var h = '<p class="lsub">Antworte innerhalb von ' + db().settings.frist + ' Schultagen, sonst läuft die Anfrage ab.</p>';
+    h += open.length ? '<h2 class="sh">' + open.length + ' offen</h2>' + open.map(function (x) { return reqRow(x, used >= t.cap); }).join('') : U.empty('Keine neuen Anfragen', t.state === 'pausiert' ? 'Du machst gerade Pause. Dein Steckbrief zeigt „pausiert“.' : 'Dein Steckbrief ist sichtbar. Sobald jemand anfragt, bekommst du eine Nachricht.');
+    return { title: 'Anfragen', html: h };
+  }
+  function students(u) {
+    var run = mine(u.id, ['probe', 'laeuft']);
+    var h = run.length ? '<h2 class="sh" style="margin-top:8px">' + run.length + (run.length === 1 ? ' Schüler' : ' Schüler') + '</h2>' + run.map(function (x) {
+      var lu = S.user(x.learner), n = x.lessons.filter(function (l) { return l.state === 'bestaetigt'; }).length;
+      return '<button class="row"' + act('openNH', { id: x.id }) + '>' + U.ban(x.fach) + U.av(lu) + '<div style="min-width:0"><div class="t1">' + esc(lu.name) + '</div><div class="t2">' + esc(U.kl(lu.klasse)) + ' · ' + esc(NH.SUBJECTS[x.fach].name) + '</div><div class="t2" style="margin-top:2px">' + (x.state === 'probe' ? 'Probephase' : n + (n === 1 ? ' bestätigte Stunde' : ' bestätigte Stunden')) + '</div></div><div>' + (x.state === 'probe' ? U.pill('Probe', 'blue') : U.pill('läuft', 'ok')) + '</div>' + U.ic('right', 'xs chev') + '</button>';
+    }).join('') : U.empty('Noch keine Schüler', 'Wenn du eine Anfrage annimmst, erscheint dein Schüler hier.');
+    return { title: 'Meine Schüler', html: h };
+  }
+
+  /* Stunde eintragen */
+  A.actions.logLesson = function () { var u = A.me(); var run = mine(u.id, ['probe', 'laeuft']); A.state.form.ll = { nh: run[0].id, day: 1, dur: 1, ort: 0 }; A.openSheet('logLesson'); };
+  A.actions.logLessonFor = function (el) { A.state.form.ll = { nh: el.dataset.id, day: 1, dur: 1, ort: 0 }; A.openSheet('logLesson'); };
+  A.sheets.logLesson = function (d, u) {
+    var L = A.state.form.ll, run = mine(u.id, ['probe', 'laeuft']);
+    return {
+      title: 'Stunde eintragen',
+      body: '<h3 class="gh" style="margin-top:8px">Mit wem?</h3>' + U.sg(run.map(function (x) { return { l: S.user(x.learner).first, on: L.nh === x.id }; }), { act: 'llNh' }) +
+        '<h3 class="gh">Wann? (diese Woche)</h3>' + U.sg(NH.TAGE.map(function (t, i) { return { l: t, on: L.day === i }; }), { act: 'llSet', data: { k: 'day' } }) +
+        '<h3 class="gh">Wie lange?</h3>' + U.sg([{ l: '45 Min', on: L.dur === 0 }, { l: '60 Min', on: L.dur === 1 }], { act: 'llSet', data: { k: 'dur' } }) +
+        '<h3 class="gh">Wo?</h3>' + U.sg([{ l: 'vor Ort', on: L.ort === 0 }, { l: 'online', on: L.ort === 1 }], { act: 'llSet', data: { k: 'ort' } }) +
+        '<p class="gf">Dein Schüler bekommt eine Nachricht und hakt die Stunde ab. Erst dann zählt sie für deine Bescheinigung.</p>',
+      footer: '<button class="btn"' + act('saveLesson') + '>Eintragen</button>'
+    };
+  };
+  A.actions.llNh = function (el) { var run = mine(A.state.role, ['probe', 'laeuft']); A.state.form.ll.nh = run[Number(el.dataset.v)].id; A.render(); };
+  A.actions.llSet = function (el) { A.state.form.ll[el.dataset.k] = Number(el.dataset.v); A.render(); };
+  A.actions.saveLesson = function () { var L = A.state.form.ll; A.send('logLesson', { id: L.nh, date: DAYDATE[NH.TAGE[L.day]], dur: L.dur ? 60 : 45, ort: L.ort ? 'online' : 'vor Ort' }, 'Stunde eingetragen', function () { A.state.sheet = null; }); };
+
+  /* Steckbrief des bestätigten Tutors */
+  function card(u, t) {
+    var h = '<p class="lsub">So sehen dich andere. Zeiten, Preis und Plätze gelten sofort. Text und Fächer gehen zur Freigabe.</p>';
+    h += '<div style="background:#FFFFFF">' + previewRow(u, t).replace('row static', 'row') .replace('<div class="row">', '<button class="row"' + act('openTutor', { id: u.id }) + '>').replace(/<\/div>$/, '</button>') + '</div>';
+    h += '<h3 class="gh">Sofort änderbar</h3><div class="grp"><div class="it"><span class="k">Plätze</span>' + qStep('cap', t.cap, Math.max(1, S.used(u.id)), 5, '') + '</div>' +
+      '<div class="it"><span class="k">Preis pro Stunde</span>' + (t.price === 0 ? '<span class="v">kostenlos</span>' : qStep('price', t.price, 5, 20, ' €')) + '</div>' +
+      '<button class="it"' + act('openTimes') + '><span class="k">Zeiten</span><span class="v">' + esc(t.times.map(function (z) { return z[0] + ' ' + z[1]; }).join(', ')) + '</span>' + U.ic('right', 'xs', ' style="color:#B4B8C4"') + '</button></div>';
+    h += '<h3 class="gh">Mit Freigabe</h3><div class="grp"><button class="it"' + act('openBio') + '><span class="k">Kurztext</span>' + U.ic('right', 'xs', ' style="color:#B4B8C4"') + '</button><div class="it"><span class="k">Fächer</span><span class="v">' + esc(t.subjects.map(function (s) { return NH.SUBJECTS[s].name; }).join(', ')) + '</span></div></div>' +
+      (t.pendingChange ? '<p class="gf">Eine Änderung wartet auf Freigabe durch das Leitungsteam.</p>' : '');
+    if (t.badges.length) h += '<h3 class="gh">Abzeichen</h3><div class="grp">' + t.badges.map(function (b) { return '<div class="it">' + U.ic('sparkle') + '<span class="k">' + esc(b) + '</span></div>'; }).join('') + '</div>';
+    h += '<h3 class="gh">Infos</h3><div class="grp"><button class="it"' + act('openRules') + '><span class="k">Regeln und Verhaltenskodex</span></button><button class="it"' + act('openPrivacy') + '><span class="k">Datenschutzhinweis</span></button><button class="it red"' + act('openLeave') + '>nachhilfly verlassen</button></div>';
+    return { title: 'Steckbrief', html: h, grey: true };
+  }
+  function qStep(k, v, min, max, unit) { return '<span class="stepper"><button' + act('qStep', { k: k, d: -1, min: min, max: max }) + (v <= min ? ' disabled' : '') + ' aria-label="weniger">−</button><span>' + v + unit + '</span><button' + act('qStep', { k: k, d: 1, min: min, max: max }) + (v >= max ? ' disabled' : '') + ' aria-label="mehr">+</button></span>'; }
+  A.actions.qStep = function (el) { var t = S.tutor(A.state.role), k = el.dataset.k, f = {}; f[k] = Math.max(Number(el.dataset.min), Math.min(Number(el.dataset.max), t[k] + Number(el.dataset.d))); A.send('changeQuick', { fields: f }, null, null, true); };
+  A.actions.openTimes = function () { var t = S.tutor(A.state.role); A.state.form.times = t.times.map(function (z) { return z[0] + ' ' + z[1]; }); A.openSheet('times'); };
+  A.sheets.times = function () {
+    var T = A.state.form.times;
+    return {
+      title: 'Zeiten', right: '<button class="tbtn b"' + act('saveTimes') + '>Sichern</button>',
+      body: '<div class="grid5" style="margin-top:12px"><span></span>' + NH.TAGE.map(function (t) { return '<span class="h">' + t + '</span>'; }).join('') + NH.ZEITEN.map(function (z) { return '<span class="tl">' + z + '</span>' + NH.TAGE.map(function (t) { var key = t + ' ' + z; return '<button class="tslot"' + act('tSlot', { v: key }) + ' aria-pressed="' + (T.indexOf(key) >= 0) + '" aria-label="' + t + ' ' + z + ' Uhr"></button>'; }).join(''); }).join('') + '</div><p class="gf">Gilt sofort. Bestehende Nachhilfen bleiben, wie sie sind.</p>'
+    };
+  };
+  A.actions.tSlot = function (el) { arr(A.state.form.times, el.dataset.v); A.render(); };
+  A.actions.saveTimes = function () { var T = A.state.form.times; if (!T.length) { A.toast('Wähle mindestens eine Zeit.', { icon: 'info' }); return; } A.send('changeQuick', { fields: { times: T.map(function (k) { return k.split(' '); }) } }, 'Zeiten gespeichert', function () { A.state.sheet = null; }); };
+  A.actions.openBio = function () { A.state.form.bio = S.tutor(A.state.role).bio; A.openSheet('bio'); };
+  A.sheets.bio = function () {
+    var b = A.state.form.bio;
+    return { title: 'Kurztext', body: '<div class="field" style="margin-top:8px"><textarea id="bioText" rows="5" maxlength="200" data-model="bio" data-count="bioCnt">' + esc(b) + '</textarea><div class="cnt" id="bioCnt">' + b.length + ' / 200</div></div><p class="gf">Bis zur Freigabe bleibt dein alter Text sichtbar. Keine Kontaktdaten, keine Links.</p>', footer: '<button class="btn"' + act('saveBio') + '>Zur Freigabe schicken</button>' };
+  };
+  A.actions.saveBio = function () { A.send('changeRequest', { fields: { bio: A.state.form.bio } }, 'Geht zur Freigabe ans Leitungsteam', function () { A.state.sheet = null; }); };
+})();
+
+/* js/screens-admin.js */
+/* nachhilfly Prototyp v2 – Leitungsteam und betreuende Lehrkraft */
+(function () {
+  var A = NH.app, U = NH.ui, S = NH.svc, act = U.act, esc = U.esc;
+  function db() { return S.db; }
+  var STATE = { wartet: ['neu', 'blue'], gespraech: ['Gespräch', 'wait'], einspruch: ['Einspruch', 'red'], bestaetigt: ['bestätigt', 'ok'], abgelehnt: ['abgelehnt', 'grey'], endgueltig: ['endgültig abgelehnt', 'grey'] };
+  function others(me) { return db().leitung.filter(function (x) { return x !== me; }).map(function (x) { return db().leitungNames[x]; }).join(' oder '); }
+
+  /* ---------- Leitungsteam ---------- */
+  A.areas.leitung = {
+    tabs: function (u) {
+      var todo = db().applications.filter(function (a) { return ['wartet', 'gespraech', 'einspruch'].indexOf(a.state) >= 0 && a.user !== u.id; }).length;
+      var rep = db().reports.filter(function (r) { return r.about === 'tutor' && r.state === 'offen'; }).length;
+      return [{ id: 'apps', label: 'Bewerbungen', icon: 'inbox', badge: todo || '' }, { id: 'tutors', label: 'Tutoren', icon: 'people' }, { id: 'reports', label: 'Meldungen', icon: 'flag', badge: rep || '' }, { id: 'stats', label: 'Zahlen', icon: 'chart' }];
+    },
+    screen: function (tab, u) { return { apps: apps, tutors: tutors, reports: reports, stats: stats }[tab](u); }
+  };
+  function appRow(a) {
+    var au = S.user(a.user), st = STATE[a.state];
+    return '<button class="row' + (['bestaetigt', 'abgelehnt', 'endgueltig'].indexOf(a.state) >= 0 ? ' dim' : '') + '"' + act('openApp', { id: a.id }) + '>' + U.ban(a.draft.s) + U.av(au) + '<div style="min-width:0"><div class="t1">' + esc(au.name) + '</div><div class="t2">' + esc(U.kl(au.klasse)) + ' · ' + esc(a.draft.subjects.map(function (s) { return NH.SUBJECTS[s].name; }).join(', ')) + '</div><div class="t2" style="margin-top:2px">' + (a.state === 'gespraech' ? esc(a.talk) : 'seit ' + esc(a.created)) + '</div></div><div>' + U.pill(st[0], st[1]) + '</div>' + U.ic('right', 'xs chev') + '</button>';
+  }
+  function apps(u) {
+    var all = db().applications.filter(function (a) { return a.state !== 'zurueckgezogen'; });
+    var groups = [['Einsprüche', ['einspruch']], ['Neu', ['wartet']], ['Gespräch vereinbart', ['gespraech']], ['Entschieden', ['bestaetigt', 'abgelehnt', 'endgueltig']]];
+    var h = '<p class="lsub">Ziel: Gespräch innerhalb von 10 Schultagen. Über eigene Fälle entscheidest du nie, das prüft der Ablauf.</p>';
+    groups.forEach(function (g) { var l = all.filter(function (a) { return g[1].indexOf(a.state) >= 0; }); if (l.length) h += '<h2 class="sh">' + g[0] + '</h2>' + l.map(appRow).join(''); });
+    h += '<button class="it link" style="margin-top:8px"' + act('openGuide') + '>' + U.ic('book') + 'Gesprächsleitfaden und Kriterien</button>';
+    return { title: 'Bewerbungen', html: h };
+  }
+  A.actions.openApp = function (el) { A.state.form.rej = ''; A.state.form.slot = null; A.openSheet('app', { id: el.dataset.id }); };
+  A.sheets.app = function (d, u) {
+    var a = db().applications.find(function (x) { return x.id === d.id; }), au = S.user(a.user), me = u.id;
+    var t = Object.assign({ id: a.user, badges: [], hours: 0, state: 'aktiv' }, a.draft);
+    var blocked = a.user === me ? 'Das ist deine eigene Bewerbung.' : (a.befangen || []).indexOf(me) >= 0 ? 'Du hast dich als befangen gemeldet. ' + others(me) + ' entscheidet.' : (a.state === 'einspruch' && a.decidedBy === me) ? 'Du hast abgelehnt. Über den Einspruch entscheidet ' + others(me) + '.' : null;
+    var h = '<div class="phead">' + U.av(au, 'l') + '<div class="n">' + esc(au.name) + '</div><div class="s">' + esc(U.kl(au.klasse)) + ' · ' + U.pill(STATE[a.state][0], STATE[a.state][1]) + '</div></div>';
+    h += '<div class="grp"><div class="it"><span class="k">Abgeschickt</span><span class="v">' + esc(a.created) + '</span></div><div class="it"><span class="k">Einwilligung Eltern</span><span class="v">' + esc(a.consent) + '</span></div>' + (a.talk ? '<div class="it"><span class="k">Gespräch</span><span class="v">' + esc(a.talk) + '</span></div>' : '') + '<div class="it"><span class="k">Lehrmethoden gelesen</span><span class="v">' + (a.methods || []).length + ' von 9</span></div></div>';
+    if (a.state === 'einspruch' || a.state === 'endgueltig' || a.state === 'abgelehnt') h += '<h3 class="gh">Ablehnung durch ' + esc(db().leitungNames[a.decidedBy] || '') + '</h3><div class="grp pad">' + esc(a.reason || '') + '</div>' + (a.appeal ? '<h3 class="gh">Einspruch von ' + esc(au.first) + '</h3><div class="grp pad">' + esc(a.appeal) + '</div>' : '');
+    if (blocked) h += '<div style="margin-top:14px">' + U.note(esc(blocked), '', 'lock') + '</div>';
+    else if (a.state === 'wartet') h += '<h3 class="gh">Gespräch vereinbaren</h3><div class="chips wrap" style="margin:0 16px">' + (a.slots || []).map(function (s) { return U.chip(esc(s) + ' Uhr', A.state.form.slot === s, act('pickSlot', { v: s })); }).join('') + '</div><p class="gf">Angebotene Termine von ' + esc(au.first) + '.</p>';
+    else if (a.state === 'gespraech' || a.state === 'einspruch') h += '<h3 class="gh">Grund, falls du ablehnst</h3><div class="field"><textarea id="rejText" rows="3" maxlength="300" data-model="rej" data-count="rejCnt" placeholder="Sachlich und freundlich. ' + esc(au.first) + ' liest das."></textarea><div class="cnt" id="rejCnt">0 / 300</div></div>' + (a.consent === 'fehlt' ? U.note('Bestätigen geht erst, wenn die Einwilligung der Eltern vorliegt.', 'wait', 'lock') : '');
+    h += '<h3 class="gh">Steckbrief</h3>' + A.steckbriefBody(t, au).replace(/<div class="phead">[\s\S]*?<\/div><\/div>/, '');
+    if (!blocked && ['wartet', 'gespraech', 'einspruch'].indexOf(a.state) >= 0) h += '<div style="display:flex;justify-content:center;margin-top:10px"><button class="tbtn grey"' + act('befangen', { id: a.id }) + '>Ich bin befangen</button></div>';
+    var foot = '';
+    if (!blocked) {
+      if (a.state === 'wartet') foot = '<button class="btn"' + act('schedule', { id: a.id }) + (A.state.form.slot ? '' : ' disabled') + '>Gespräch vereinbaren</button>';
+      if (a.state === 'gespraech' || a.state === 'einspruch') foot = '<button class="btn"' + act('approve', { id: a.id }) + (a.consent === 'fehlt' ? ' disabled' : '') + '>' + (a.state === 'einspruch' ? 'Einspruch annehmen, bestätigen' : 'Als Tutor bestätigen') + '</button><button class="btn red"' + act('reject', { id: a.id }) + '>' + (a.state === 'einspruch' ? 'Endgültig ablehnen' : 'Ablehnen') + '</button>';
+    }
+    return { title: 'Bewerbung', tall: true, left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>', body: h, footer: foot };
+  };
+  A.actions.pickSlot = function (el) { A.state.form.slot = el.dataset.v; A.render(); };
+  A.actions.schedule = function (el) { A.send('schedule', { id: el.dataset.id, slot: A.state.form.slot }, 'Gespräch vereinbart. Die Einladung geht raus.', function () { A.state.sheet = null; }); };
+  A.actions.approve = function (el) { A.send('approve', { id: el.dataset.id }, 'Bestätigt. Der Steckbrief ist jetzt sichtbar.', function () { A.state.sheet = null; }); };
+  A.actions.reject = function (el) {
+    if (!(A.state.form.rej || '').trim()) { A.toast('Bitte schreib einen Grund. Er ist Pflicht.', { icon: 'info' }); var f = document.getElementById('rejText'); if (f) { f.closest('.field').classList.add('err'); f.focus(); } return; }
+    A.send('reject', { id: el.dataset.id, reason: A.state.form.rej }, 'Abgelehnt. Die Nachricht mit Grund geht raus.', function () { A.state.sheet = null; });
+  };
+  A.actions.befangen = function (el) { A.send('befangen', { id: el.dataset.id }, 'Notiert. Jemand anderes übernimmt.'); };
+  A.actions.openGuide = function () { A.openSheet('guide'); };
+  A.sheets.guide = function () {
+    var K = ['Kann eine Aufgabe aus dem eigenen Fach verständlich erklären (kurze Probe im Gespräch).', 'Hat Regeln und Verhaltenskodex verstanden.', 'Ist zuverlässig erreichbar und kennt den Aufwand.', 'Noten werden nicht abgefragt.'];
+    var L = ['Begrüßen, kurz erklären, wie das Gespräch läuft (1 Min).', 'Warum willst du Nachhilfe geben? (2 Min)', 'Erklär-Probe: eine Aufgabe für Klasse 6 (4 Min).', 'Regeln kurz durchgehen, Fragen klären (2 Min).', 'Sagen, wann die Entscheidung kommt (1 Min).'];
+    return { title: 'Leitfaden', left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>', body: '<h3 class="gh" style="margin-top:8px">Kriterien (Vorschlag)</h3><div class="kodex"><ul>' + K.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul></div><h3 class="gh">Ablauf, 10 Minuten</h3><div class="kodex"><ul>' + L.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul></div><p class="gf">Bei vielen Bewerbungen: Gruppengespräche mit 4 bis 5 Personen.</p>' };
+  };
+
+  function tutorStatePill(t) {
+    if (t.state === 'ausgesetzt') return U.pill('ausgesetzt', 'red');
+    if (t.state === 'pausiert') return U.pill('pausiert', 'grey');
+    if (S.used(t.id) >= t.cap) return U.pill('voll', 'blue');
+    return U.pill('aktiv', 'ok');
+  }
+  function tutors() {
+    var h = '<p class="lsub">' + db().tutors.length + ' Tutoren. Daten von Nachhilfe-Nehmenden siehst du hier nicht.</p>';
+    h += db().tutors.map(function (t) {
+      var tu = S.user(t.id);
+      return '<button class="row"' + act('openTAdmin', { id: t.id }) + '>' + U.ban(t.s) + U.av(tu) + '<div style="min-width:0"><div class="t1">' + esc(tu.name) + '</div><div class="t2">' + esc(U.kl(tu.klasse)) + ' · ' + S.used(t.id) + ' von ' + t.cap + ' Plätzen</div><div class="t2" style="margin-top:2px">' + String(t.hours).replace('.', ',') + ' bestätigte Stunden' + (t.pendingChange ? ' · Änderung wartet' : '') + '</div></div><div>' + tutorStatePill(t) + '</div>' + U.ic('right', 'xs chev') + '</button>';
+    }).join('');
+    return { title: 'Tutoren', html: h };
+  }
+  A.actions.openTAdmin = function (el) { A.openSheet('tadmin', { id: el.dataset.id }); };
+  A.sheets.tadmin = function (d, u) {
+    var t = S.tutor(d.id), tu = S.user(d.id), self = d.id === u.id, votes = t.banVotes || [];
+    var h = '<div class="phead">' + U.av(tu, 'l') + '<div class="n">' + esc(tu.name) + '</div><div class="s">' + esc(U.kl(tu.klasse)) + ' · ' + tutorStatePill(t) + '</div></div>';
+    h += '<div class="grp"><div class="it"><span class="k">Plätze</span><span class="v">' + S.used(t.id) + ' von ' + t.cap + '</span></div><div class="it"><span class="k">Bestätigte Stunden</span><span class="v">' + String(t.hours).replace('.', ',') + '</span></div><div class="it"><span class="k">Abzeichen</span><span class="v">' + esc(t.badges.join(', ') || 'keine') + '</span></div></div>';
+    if (self) { h += '<div style="margin-top:14px">' + U.note('Das bist du. Entscheidungen über dich trifft jemand anderes.', '', 'lock') + '</div>'; }
+    else {
+      if (t.pendingChange) h += '<h3 class="gh">Änderung wartet auf Freigabe</h3><div class="grp pad">' + esc(t.pendingChange.bio || '') + '</div><div class="bwrap" style="padding-bottom:0"><button class="btn sec"' + act('approveChange', { id: t.id }) + '>Änderung freigeben</button></div>';
+      h += '<h3 class="gh">Abzeichen vergeben</h3><div class="chips wrap" style="margin:0 16px">' + ['10 Stunden geholfen', 'Methoden-Profi', 'Super erklärt'].map(function (b) { return U.chip(esc(b), t.badges.indexOf(b) >= 0, act('badge', { id: t.id, v: b }), t.badges.indexOf(b) >= 0 ? ' disabled' : ''); }).join('') + '</div>';
+      h += '<h3 class="gh">Maßnahmen</h3><div class="grp">' +
+        (t.state === 'ausgesetzt' ? '<button class="it link"' + act('unsuspend', { id: t.id }) + '>Wieder freigeben</button>' : '<button class="it red"' + act('suspend', { id: t.id }) + '>Vorläufig aussetzen</button>') +
+        '<button class="it red"' + act('banReq', { id: t.id }) + (votes.indexOf(u.id) >= 0 ? ' disabled' : '') + '>Sperre beantragen' + (votes.length ? ' · ' + votes.length + ' von 2' : '') + '</button></div>' +
+        '<p class="gf">Aussetzen wirkt sofort und beendet laufende Nachhilfen mit dem Hinweis „Tutor nicht mehr verfügbar“, ohne Grund. Eine Sperre braucht ein zweites Mitglied oder die Lehrkraft. Frau Keller wird immer informiert.</p>';
+    }
+    return { title: 'Tutor', tall: true, left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>', body: h };
+  };
+  A.actions.approveChange = function (el) { A.send('approveChange', { id: el.dataset.id }, 'Änderung freigegeben'); };
+  A.actions.badge = function (el) { A.send('badge', { id: el.dataset.id, badge: el.dataset.v }, 'Abzeichen vergeben'); };
+  A.actions.suspend = function (el) { A.send('suspend', { id: el.dataset.id }, 'Vorläufig ausgesetzt. Frau Keller ist informiert.'); };
+  A.actions.unsuspend = function (el) { A.send('unsuspend', { id: el.dataset.id }, 'Freigegeben. Startet pausiert.'); };
+  A.actions.banReq = function (el) { A.send('banRequest', { id: el.dataset.id }, 'Sperre beantragt. Ein zweites Mitglied muss zustimmen.'); };
+
+  function reportRow(r, showReporter) {
+    var au = S.user(r.aboutId);
+    return '<button class="row' + (r.state !== 'offen' ? ' dim' : '') + '"' + act('openRep', { id: r.id }) + '><div class="ban" style="background:' + (r.about === 'tutor' ? 'var(--nh-blue)' : '#6B7080') + '">' + (r.about === 'tutor' ? 'Tu' : 'Ne') + '</div>' + U.av(au) + '<div style="min-width:0"><div class="t1">' + esc(r.grund) + '</div><div class="t2">über ' + esc(au.name) + ' · ' + esc(r.when) + '</div>' + (showReporter ? '<div class="t2" style="margin-top:2px">von ' + esc(r.reporter) + '</div>' : '') + '</div><div>' + (r.state === 'offen' ? U.pill('offen', 'wait') : U.pill(r.decision, 'grey')) + '</div>' + U.ic('right', 'xs chev') + '</button>';
+  }
+  function reports() {
+    var l = db().reports.filter(function (r) { return r.about === 'tutor'; });
+    var h = U.note('Hier stehen nur Meldungen über Tutoren, ohne Namen der meldenden Person. Kinderschutz-Meldungen und Meldungen über Nehmende sieht nur Frau Keller.', '', 'shield');
+    h += l.length ? '<h2 class="sh">' + l.length + (l.length === 1 ? ' Meldung' : ' Meldungen') + '</h2>' + l.map(function (r) { return reportRow(r, false); }).join('') : U.empty('Alles erledigt', 'Keine Meldungen.');
+    return { title: 'Meldungen', html: h };
+  }
+  A.actions.openRep = function (el) { A.openSheet('rep', { id: el.dataset.id }); };
+  A.sheets.rep = function (d, u) {
+    var r = db().reports.find(function (x) { return x.id === d.id; }), au = S.user(r.aboutId), teacher = A.view() === 'lehrkraft';
+    var h = '<div class="grp" style="margin-top:8px"><div class="it"><span class="k">Über</span><span class="v">' + esc(au.name) + '</span></div><div class="it"><span class="k">Grund</span><span class="v">' + esc(r.grund) + '</span></div><div class="it"><span class="k">Eingegangen</span><span class="v">' + esc(r.when) + '</span></div>' + (teacher ? '<div class="it"><span class="k">Gemeldet von</span><span class="v">' + esc(r.reporter) + '</span></div>' : '') + '</div><h3 class="gh">Beschreibung</h3><div class="grp pad">' + esc(r.text) + '</div>';
+    if (r.aboutId === u.id) h += '<div style="margin-top:14px">' + U.note('Die Meldung betrifft dich. Jemand anderes entscheidet.', '', 'lock') + '</div>';
+    else if (r.state === 'offen') h += '<h3 class="gh">Entscheidung</h3><div class="grp">' + ['kein Verstoß', 'verwarnt', 'ausgesetzt'].map(function (x) { return '<button class="it' + (x === 'ausgesetzt' ? ' red' : ' link') + '"' + act('decideRep', { id: r.id, v: x }) + '>' + { 'kein Verstoß': 'Kein Verstoß', verwarnt: 'Verwarnen', ausgesetzt: 'Vorläufig aussetzen' }[x] + '</button>'; }).join('') + (teacher ? '' : '<button class="it link"' + act('decideRep', { id: r.id, v: 'an Lehrkraft' }) + '>An Frau Keller abgeben</button>') + '</div><p class="gf">Jede Entscheidung steht im Protokoll.</p>';
+    else h += '<p class="gf" style="margin-top:12px">Erledigt: ' + esc(r.decision) + '.</p>';
+    return { title: 'Meldung', left: '', right: '<button class="tbtn b"' + act('closeSheet') + '>Fertig</button>', body: h, tall: true };
+  };
+  A.actions.decideRep = function (el) { A.send('reportDecide', { id: el.dataset.id, decision: el.dataset.v }, 'Entschieden: ' + el.dataset.v, function () { A.state.sheet = null; }); };
+
+  function stats() {
+    var T = db().tutors, N = db().nachhilfen;
+    var active = T.filter(function (t) { return t.state === 'aktiv'; });
+    var freeAll = active.reduce(function (s, t) { return s + Math.max(0, t.cap - S.used(t.id)); }, 0);
+    var hours = T.reduce(function (s, t) { return s + t.hours; }, 0);
+    var per = Object.keys(NH.SUBJECTS).map(function (c) { return [c, active.filter(function (t) { return t.subjects.indexOf(c) >= 0; }).reduce(function (s, t) { return s + Math.max(0, t.cap - S.used(t.id)); }, 0)]; });
+    var max = Math.max.apply(null, per.map(function (p) { return p[1]; }).concat([1]));
+    var h = '<p class="lsub">Nur Zahlen, keine Namen. Beispieldaten.</p><div class="grp">' +
+      it('Aktive Tutoren', active.length) + it('Freie Plätze', freeAll) + it('Offene Anfragen', N.filter(function (x) { return x.state === 'offen'; }).length) + it('Laufende Nachhilfen', N.filter(function (x) { return x.state === 'laeuft' || x.state === 'probe'; }).length) + it('Bestätigte Stunden', String(hours).replace('.', ',')) + '</div>';
+    h += '<h3 class="gh">Freie Plätze je Fach</h3><div class="grp" style="padding:8px 16px">' + per.map(function (p) {
+      return '<div style="display:grid;grid-template-columns:96px 1fr 28px;gap:10px;align-items:center;min-height:32px"><span style="font-size:15px">' + esc(NH.SUBJECTS[p[0]].name) + '</span><span style="height:10px;border-radius:5px;background:var(--nh-fill)"><span style="display:block;height:100%;border-radius:5px;width:' + (p[1] / max * 100) + '%;background:' + NH.SUBJECTS[p[0]].color + '"></span></span><span style="font-size:15px;text-align:right;font-variant-numeric:tabular-nums;color:' + (p[1] ? 'var(--nh-text)' : 'var(--nh-danger)') + '">' + p[1] + '</span></div>';
+    }).join('') + '</div><p class="gf">Rot heißt: in diesem Fach gerade kein freier Platz. Gezielt Tutoren suchen.</p>';
+    return { title: 'Zahlen', html: h, grey: true };
+  }
+  function it(k, v) { return '<div class="it"><span class="k">' + esc(k) + '</span><span class="v">' + esc(v) + '</span></div>'; }
+
+  /* ---------- Lehrkraft ---------- */
+  A.areas.lehrkraft = {
+    tabs: function () {
+      var c = db().consents.filter(function (x) { return x.state === 'wartet'; }).length;
+      var r = db().reports.filter(function (x) { return x.state === 'offen'; }).length;
+      return [{ id: 'consent', label: 'Einwilligungen', icon: 'lock', badge: c || '' }, { id: 'reports', label: 'Meldungen', icon: 'flag', badge: r || '' }, { id: 'log', label: 'Protokoll', icon: 'list' }, { id: 'settings', label: 'Einstellungen', icon: 'gear' }];
+    },
+    screen: function (tab, u) { return { consent: consent, reports: tReports, log: protocol, settings: settings }[tab](u); }
+  };
+  function consent() {
+    var w = db().consents.filter(function (x) { return x.state === 'wartet'; }), d = db().consents.filter(function (x) { return x.state !== 'wartet'; });
+    var h = '<p class="lsub">Klasse 5 bis 8. Erst wenn die Einwilligung der Eltern da ist, können sie anfragen.</p>';
+    h += w.length ? '<h2 class="sh">Wartet · ' + w.length + '</h2>' + w.map(function (c) { var cu = S.user(c.user); return '<div class="row static nochev"><div class="ban" style="background:#6B7080">' + esc(String(cu.klasse)) + '</div>' + U.av(cu) + '<div style="min-width:0"><div class="t1">' + esc(cu.name) + '</div><div class="t2">' + esc(U.kl(cu.klasse)) + ' · Formular verschickt</div><div class="acts"><button class="pb"' + act('openConsent', { user: c.user }) + '>Liegt vor</button></div></div><span></span></div>'; }).join('') : U.empty('Alles eingetragen', 'Keine offenen Einwilligungen.');
+    if (d.length) h += '<h2 class="sh">Eingetragen</h2>' + d.map(function (c) { var cu = S.user(c.user); return '<div class="row static nochev dim"><div class="ban" style="background:#6B7080">' + esc(String(cu.klasse)) + '</div>' + U.av(cu) + '<div style="min-width:0"><div class="t1">' + esc(cu.name) + '</div><div class="t2">' + esc(c.date || '') + ' · online ' + (c.online ? 'erlaubt' : 'nicht erlaubt') + '</div></div><span></span></div>'; }).join('');
+    return { title: 'Einwilligungen', html: h };
+  }
+  A.actions.openConsent = function (el) { A.state.form.cons = { user: el.dataset.user, online: false }; A.openSheet('consent'); };
+  A.sheets.consent = function () {
+    var C = A.state.form.cons, cu = S.user(C.user);
+    return { title: 'Einwilligung', body: '<div class="grp" style="margin-top:8px"><div class="it"><span class="k">Schüler/in</span><span class="v">' + esc(cu.name) + '</span></div><div class="it"><span class="k">Datum</span><span class="v">' + esc(db().today) + '</span></div><div class="it"><span class="k">Online-Nachhilfe erlaubt</span>' + U.sw(C.online, act('consOnline'), 'Online erlaubt') + '</div></div><p class="gf">Wie auf dem Formular angekreuzt. Für Klasse 5 und 6 ist online nur mit diesem Häkchen möglich. Das Papierformular bleibt in der Schule.</p>', footer: '<button class="btn"' + act('saveConsent') + '>Eintragen</button>' };
+  };
+  A.actions.consOnline = function () { A.state.form.cons.online = !A.state.form.cons.online; A.render(); };
+  A.actions.saveConsent = function () { var C = A.state.form.cons; A.send('consent', { user: C.user, online: C.online }, 'Eingetragen. ' + S.user(C.user).first + ' kann jetzt anfragen.', function () { A.state.sheet = null; }); };
+  function tReports() {
+    var l = db().reports;
+    var h = U.note('Kinderschutz-Meldungen kommen direkt per Mail zu Ihnen und werden in der App nicht gespeichert.', '', 'shield');
+    h += l.length ? '<h2 class="sh">Alle Meldungen</h2>' + l.map(function (r) { return reportRow(r, true); }).join('') : U.empty('Alles erledigt', 'Keine Meldungen.');
+    return { title: 'Meldungen', html: h };
+  }
+  function protocol() {
+    var h = '<p class="lsub">Jede Entscheidung mit Person und Zeit. Wöchentlich als Bericht per Mail.</p><div class="grp">' + db().protocol.map(function (p) {
+      return '<div class="it" style="align-items:flex-start;padding-top:10px;padding-bottom:10px"><div class="k"><div style="font-size:15px">' + esc(p.what) + '</div><div style="font-size:13px;color:var(--nh-text-2);margin-top:2px">' + esc(p.who) + ' · ' + esc(p.when) + '</div></div></div>';
+    }).join('') + '</div>';
+    return { title: 'Protokoll', html: h, grey: true };
+  }
+  function settings() {
+    var s = db().settings;
+    var h = '<h3 class="gh" style="margin-top:6px">Zeiten</h3><div class="grp"><div class="it"><span class="k">Ferienmodus</span>' + U.sw(s.ferien, act('setting', { k: 'ferien', l: 'Ferienmodus' }), 'Ferienmodus') + '</div><div class="it"><span class="k">Antwortfrist</span><span class="stepper"><button' + act('frist', { d: -1 }) + (s.frist <= 2 ? ' disabled' : '') + ' aria-label="weniger">−</button><span>' + s.frist + '</span><button' + act('frist', { d: 1 }) + (s.frist >= 5 ? ' disabled' : '') + ' aria-label="mehr">+</button></span></div><div class="it"><span class="k">Online-Nachhilfe bis</span><span class="v">' + s.onlineBis + ' Uhr</span></div></div><p class="gf">Im Ferienmodus laufen keine Fristen. Die Antwortfrist zählt in Schultagen.</p>';
+    h += '<h3 class="gh">Not-Aus</h3><div class="grp"><div class="it"><span class="k">App pausieren</span>' + U.sw(s.pause, act('setting', { k: 'pause', l: 'App pausiert' }), 'App pausieren') + '</div></div><p class="gf">Alle anderen sehen dann nur „nachhilfly macht gerade Pause“. Probieren Sie es aus und wechseln Sie die Rolle.</p>';
+    h += '<h3 class="gh">Leitungsteam</h3><div class="grp">' + db().leitung.map(function (x) { return it(db().leitungNames[x], 'Vertraulichkeit unterschrieben'); }).join('') + '</div>';
+    return { title: 'Einstellungen', html: h, grey: true };
+  }
+  A.actions.setting = function (el) { var k = el.dataset.k; A.send('setting', { key: k, value: !db().settings[k], label: el.dataset.l + (db().settings[k] ? ' aus' : ' an') }, null, null, true); };
+  A.actions.frist = function (el) { var s = db().settings; A.send('setting', { key: 'frist', value: Math.max(2, Math.min(5, s.frist + Number(el.dataset.d))), label: 'Antwortfrist' }, null, null, true); };
+})();
+
+/* js/start.js */
+/* Startet den Prototyp, sobald alles geladen ist. */
+NH.app.start();
+
+</script>
+
+</body></html>
