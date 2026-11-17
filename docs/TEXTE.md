@@ -162,9 +162,9 @@ Ablauf (10 Min): Begrüßen, Ablauf erklären (1) · Warum willst du Nachhilfe g
 | `decline.hint` | {name} bekommt Bescheid und kann jemand anderen anfragen. Der Grund ist freiwillig. |
 | `reject.placeholder` | Sachlich und freundlich. {name} liest das. |
 | `suspend.hint` | Aussetzen wirkt sofort und beendet laufende Nachhilfen mit dem Hinweis „Tutor nicht mehr verfügbar“, ohne Grund. Eine Sperre braucht ein zweites Mitglied oder die Lehrkraft. Die Lehrkraft wird immer informiert. |
-| `report.kind1` | Problem mit Regeln oder App |
+| `report.kind1.label` | Problem mit Regeln oder App |
 | `report.kind1.hint` | Geht an das Leitungsteam (über Tutoren) oder an die Lehrkraft (über Schüler). Wer gemeldet hat, sieht nur die Lehrkraft. |
-| `report.kind2` | Ich fühle mich unwohl |
+| `report.kind2.label` | Ich fühle mich unwohl |
 | `report.kind2.hint` | Geht nur an {kinderschutz}. Niemand aus der SMV sieht das. |
 | `settings.pauseHint` | Alle anderen sehen dann nur „nachhilfly macht gerade Pause“. |
 
