@@ -5,7 +5,7 @@
 Phasen 3 und 7 (Listen, Flows) können parallel zu 4–6 laufen, sobald Phase 2 durch ist.
 
 ## Jetzt
-- Stand: Starter-Kit angelegt (15.11.2026), ergänzt am selben Tag: Ort frei (D-25), keine Klassengrenze (D-26), Gruppennachhilfe (D-27). Nächste Aufgabe: T-0.3 (Mail an Frau Hilchentwort verschickt 17.11.2026, Antwort und Adresse der Team-Website abwarten). T-0.5 wartet auf große Logo-Datei von Subi (O-14).
+- Stand (17.11.2026): Phase 0: T-0.1 und T-0.2 erledigt, T-0.3 wartet auf Antwort von Frau Hilchentwort (Mail verschickt, Testseite = Website des Teams „nachhilfly“), T-0.4 wartet auf T-0.3, T-0.5 wartet auf große Logo-Datei. Phase 1: T-1.1 und T-1.2 erledigt. Nächste Aufgabe: T-1.3.
 - Notizen der letzten Sitzung: T-1.2 erledigt (17.11.2026): `domain/types.ts`, `domain/constants.ts` (inkl. DEFAULT_SETTINGS, STATE_PILL), `app/texts.ts` (alle TEXTE.md-Texte, `fmt()`). TEXTE.md: `report.kindN` → `report.kindN.label`. Offen für Subi: Texte mit „betreuende Lehrkraft“ (reg.finish.parents.text, pause.text) passen nach D-28 evtl. nicht mehr; Z-3 `quit` hat keinen Anzeigetext. Weiter mit T-1.3.
 
 ---
