@@ -72,10 +72,10 @@ Zum Ausdrucken oder als Mail. Alles bitte zuerst nur für die **Testseite**.
 2. **Websitesammlungs-App-Katalog** auf der Testseite aktivieren (PowerShell: `Add-SPOSiteCollectionAppCatalog -Site <URL>`), damit Subi Testversionen selbst hochladen kann.
 3. **Testkonten** für jede Rolle (siehe TODO.md T-0.3): 1 Fünftklässler, 1 Siebtklässler, 1 Tutor, 1 Leitungsteam-Mitglied, 1 Lehrkraft. Ohne echte Daten.
 4. **SharePoint-Gruppen** auf der Testseite: „nachhilfly Schüler“, „nachhilfly Leitungsteam“, „nachhilfly Lehrkraft“, „nachhilfly Entwicklung“ (Rechte siehe DATENMODELL.md §2).
-5. **Funktionskonto** (O-22) mit Lizenz, die Power Automate mit Standard-Konnektoren erlaubt. **Kostenfrage klären.**
+5. **Funktionskonto** (O-22): vorhanden, kostenlos. Auf der Testseite Vollzugriff geben (FK in DATENMODELL.md §2).
 6. **Power Automate** für Subi auf der Testumgebung erlaubt (Standard-Konnektoren: SharePoint, Outlook, Teams).
-7. Später für den Start: echte Website „nachhilfly“, Paket in den App-Katalog der Schule, „Mit Teams synchronisieren“, im Teams Admin Center erlauben und per App-Einrichtungsrichtlinie für Schüler anheften (O-24), Gruppen befüllen (O-31).
-8. Fragen aus ENTSCHEIDUNGEN.md: O-12, O-20, O-21, O-22, O-23, O-24, O-31, O-33.
+7. Später für den Start: echte Website „nachhilfly“, Paket in den App-Katalog der Schule, „Mit Teams synchronisieren“, im Teams Admin Center erlauben und per App-Einrichtungsrichtlinie für Schüler anheften (O-24), Gruppen befüllen: vorhandene Schülergruppe in „nachhilfly Schüler“ (O-31). Leitungsteam und Lehrkraft: vorerst nur Subi (D-28).
+8. Noch offene Frage an die IT: O-12 (Klasse im Schulkonto). O-30, O-32 … O-34 klärt der Technik-Test (Phase 2).
 
 ## 7. Häufige Probleme
 | Problem | Lösung |
