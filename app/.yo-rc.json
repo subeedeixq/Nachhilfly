@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "nachhilfly",
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "Nachhilfly",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "26.13.1",
+    "sdksVersions": {},
+    "version": "1.24.1",
+    "libraryName": "nachhilfly",
+    "libraryId": "e5aa28c7-8fbf-47ed-a8d4-b2e186235a41",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionShortDescription": "nachhilfly description",
+    "skipFeatureDeployment": true
+  }
+}

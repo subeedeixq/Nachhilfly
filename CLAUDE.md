@@ -86,7 +86,7 @@ Zustandsnamen im Code: siehe SPEC.md §Zustände (englische Schlüssel, z. B. `t
 | Klick-Tests mit Screenshots | `npm run test:ui` |
 | Paket bauen | `heft build --production && heft package-solution --production` → `app/sharepoint/solution/nachhilfly.sppkg` |
 
-Die genauen Skriptnamen legt Aufgabe T-1.1/T-1.4 fest. Wenn sie abweichen, trag sie hier ein.
+Die genauen Skriptnamen legt Aufgabe T-1.1/T-1.4 fest. Wenn sie abweichen, trag sie hier ein. Heft immer als `npx heft …` aufrufen (Projektversion statt globaler).
 
 ## Fertig-Check (Definition of Done)
 - [ ] Baut ohne Fehler und ohne neue Warnungen. Unit-Tests grün.

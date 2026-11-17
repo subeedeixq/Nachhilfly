@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "nachhilfly-client-side-solution",
+    "id": "e5aa28c7-8fbf-47ed-a8d4-b2e186235a41",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.24.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Nachhilfe-Börse der SMV"
+      },
+      "longDescription": {
+        "default": "Schüler finden bestätigte Schüler-Tutoren, fragen an und tragen Nachhilfestunden ein."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "nachhilfly",
+        "description": "Webpart nachhilfly",
+        "id": "4ddcdf02-7a1f-4e2f-8e0d-bc9c7d0b5d37",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/nachhilfly.sppkg"
+  }
+}
