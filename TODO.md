@@ -6,7 +6,7 @@ Phasen 3 und 7 (Listen, Flows) können parallel zu 4–6 laufen, sobald Phase 2 
 
 ## Jetzt
 - Stand: Starter-Kit angelegt (15.11.2026), ergänzt am selben Tag: Ort frei (D-25), keine Klassengrenze (D-26), Gruppennachhilfe (D-27). Nächste Aufgabe: T-0.3.
-- Notizen der letzten Sitzung: T-0.1 erledigt (17.11.2026): neue Entscheidungen D-28 … D-32 (Subi = Leitung + Lehrkraft, keine Online-Zeitgrenze, Finden sofort offen, Rückmeldung, Bescheinigung). Neu offen: O-38 (Eltern informieren), O-39 (Datenschutz zu D-28, Herrn Scharf fragen). Die Mail in T-0.3 soll O-39 und O-09/O-35 mit ansprechen.
+- Notizen der letzten Sitzung: T-0.1 erledigt (17.11.2026): neue Entscheidungen D-28 … D-32 (Subi = Leitung + Lehrkraft, keine Online-Zeitgrenze, Finden sofort offen, Rückmeldung, Bescheinigung). Neu offen: O-38 (Eltern informieren). O-39 geklärt (Subi verantwortlich, keine extra Lehrkraft). Keine eigene Mail an Herrn Scharf.
 
 ---
 
