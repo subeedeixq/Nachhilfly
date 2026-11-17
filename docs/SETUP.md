@@ -68,7 +68,7 @@ Claude macht das in Aufgabe T-0.2 mit dir:
 
 ## 6. Was die IT vorbereitet (Checkliste für Frau Hilchentwort)
 Zum Ausdrucken oder als Mail. Alles bitte zuerst nur für die **Testseite**.
-1. **Testseite** (SharePoint-Teamwebsite oder Kommunikationswebsite) „nachhilfly-test“. Subi als Besitzer.
+1. **Testseite:** die SharePoint-Website des Teams „nachhilfly“ (von Frau Hilchentwort angelegt, 17.11.2026). Subi als Besitzer. Teammitglieder haben dort Bearbeitungsrechte, darum bekommen die Listen in Phase 3 eigene Rechte.
 2. **Websitesammlungs-App-Katalog** auf der Testseite aktivieren (PowerShell: `Add-SPOSiteCollectionAppCatalog -Site <URL>`), damit Subi Testversionen selbst hochladen kann.
 3. **Testkonten** für jede Rolle (siehe TODO.md T-0.3): 1 Fünftklässler, 1 Siebtklässler, 1 Tutor, 1 Leitungsteam-Mitglied, 1 Lehrkraft. Ohne echte Daten.
 4. **SharePoint-Gruppen** auf der Testseite: „nachhilfly Schüler“, „nachhilfly Leitungsteam“, „nachhilfly Lehrkraft“, „nachhilfly Entwicklung“ (Rechte siehe DATENMODELL.md §2).
