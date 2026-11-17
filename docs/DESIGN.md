@@ -117,7 +117,7 @@ Größen: 40 px (Liste), 24 px (Rollen-Knopf), 56 px (Auswahl), 76 px (Steckbrie
 
 **Stepper.** −/+ mit Zahl, für Plätze und Fristen.
 
-**Zeitraster.** Tage als Spalten (Mo–Fr), Zeitfenster als Zeilen, Zellen 36 px hoch, gewählt = Schulblau. `18-19` nur aktiv, wenn „online“ gewählt ist (R-25).
+**Zeitraster.** Tage als Spalten (Mo–Fr), Zeitfenster als Zeilen, Zellen 36 px hoch, gewählt = Schulblau. Alle Zeitfenster für alle Formate (R-25).
 
 **Pille (Status).** 22 px, Radius 11, 12.5/600: ok grün, wartet bernstein, rot, blau, grau.
 

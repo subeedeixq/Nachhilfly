@@ -333,7 +333,7 @@ Im Code in `app/src/domain/constants.ts`. Anzeige-Texte in TEXTE.md.
 | Anliegen / Art der Hilfe | `basics` Grundlagen · `exam` Klassenarbeit vorbereiten · `homework` Hausaufgaben verstehen · `learning` Lernen lernen |
 | Format / Ort | `school` in der Schule · `online` online über Teams · `elsewhere` anderer Ort (z. B. zuhause, Bücherei) |
 | Tage | `Mo` `Di` `Mi` `Do` `Fr` |
-| Zeitfenster | `13-14` `14-15` `15-16` `16-17` `17-18` `18-19` (`18-19` nur online, R-25) |
+| Zeitfenster | `13-14` `14-15` `15-16` `16-17` `17-18` `18-19` (alle Formate, R-25) |
 | Dauer | `45` · `60` Minuten (Gruppen-Termine zusätzlich `90`) |
 | Meldegründe | `noShow` Nicht erschienen · `messages` Unpassende Nachrichten · `money` Streit ums Geld · `profile` Unpassender Steckbrief · `app` Problem mit der App · `other` Etwas anderes |
 | Ablehnungsgründe Anfrage | `noTime` Keine Zeit mehr · `notFitting` Passt fachlich nicht · `none` Ohne Grund |

@@ -75,7 +75,7 @@ Format: **Aktionen** · **Gleichzeitigkeit** · nummerierte Prüfungen (→ Fehl
 - Alle: Author ist `Tutor` oder `Learner` der Nachhilfe → sonst E-NOT-ALLOWED.
 - `continue`: nur `State = trial` und Probestunde eingetragen → sonst E-NOT-ALLOWED. `yes = false` → `ended`, `EndReason = noContinue`, `EndedBy` = Seite; N-08 an die andere Seite ohne Grund. `yes = true` → eigene Spalte `Continue…` = `yes`; sind beide `yes` → `running` (R-51).
 - `end`: `State` in (`trial`,`running`) → `ended`, `EndReason = byUser`, `EndedBy`, `EndedAt`. N-08 an die andere Seite (R-56).
-- `feedback`: nur B-LOG (sieht nur LK, R-83). Kein Eintrag in der Nachhilfe.
+- `feedback`: B-LOG (R-83). Kein Eintrag in der Nachhilfe. Bei `fits = true` zusätzlich neutrale Nachricht an den Tutor („Du hast eine gute Rückmeldung bekommen“, ohne Freitext, D-31).
 
 ### F-07 Tutor verwaltet sich selbst
 **Aktionen:** `pause`, `changeQuick`, `changeRequest`, `quit` · **Gleichzeitigkeit 1**
@@ -154,7 +154,7 @@ Löschfristen nach R-81. Danach Papierkorb der Website (erste und zweite Stufe) 
 Alle Nachhilfen `open`/`trial`/`running` → beendet bzw. `expired`, `EndReason = schoolYearEnd` (R-58). Gruppen `open`/`closed` → `cancelled` (`schoolYearEnd`), Teilnahmen → `cancelled`. Bewerbungen `submitted`/`interview` → `withdrawn` mit Hinweis. Profile: `GradeSource = manual` → Klasse um 1 erhöhen oder Lehrkraft-Hinweis (O-12). J2 → Profil, Steckbrief, Akte löschen.
 
 ### F-24 Bescheinigungen (Version 1.1)
-Liste bestätigter Stunden je Tutor als Mail an LK.
+Liste der Tutoren mit mindestens einer bestätigten Stunde als Mail an die Leitung, als Grundlage für Bescheinigung bzw. Zeugnisvermerk (D-32).
 
 ## 5. Hilfs-Flows mit eigenem Trigger
 ### F-90 Versand (Trigger: Element erstellt in `NhNotify`)

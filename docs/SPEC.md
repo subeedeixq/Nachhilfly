@@ -140,7 +140,7 @@ Registrierung soll in unter einer Minute fertig sein. Was das Konto weiß (Name,
 ## 6. Bewerber
 | ID | Bildschirm | Inhalt | Aktionen | Prototyp |
 |---|---|---|---|---|
-| S-20 | Bewerbung (Assistent, 6 Schritte, Fortschrittsbalken) | 1 Willkommen (Aufwand, Gespräch, Steckbrief) · 2 Über dich (Avatar, Kurztext 200) · 3 Was du anbietest (Fächer, Stufen frei wählbar R-24, Art, Format: Schule/online/anderer Ort) · 4 Wann (Zeitraster Mo–Fr × 13–18 Uhr, R-25) · 5 Plätze (1–5) und Preis (Hinweis R-62), Gesprächszeiten (2–3 Fenster) · 6 Regeln + Lehrmethoden bestätigen, Vorschau des Steckbriefs | Zurück/Weiter, Abschicken → A-10. Eingaben bleiben beim Zurückgehen erhalten | Persona Nils als Tutor, `wz*` |
+| S-20 | Bewerbung (Assistent, 6 Schritte, Fortschrittsbalken) | 1 Willkommen (Aufwand, Gespräch, Steckbrief) · 2 Über dich (Avatar, Kurztext 200) · 3 Was du anbietest (Fächer, Stufen frei wählbar R-24, Art, Format: Schule/online/anderer Ort) · 4 Wann (Zeitraster Mo–Fr × 13–19 Uhr, R-25) · 5 Plätze (1–5) und Preis (Hinweis R-62), Gesprächszeiten (2–3 Fenster) · 6 Regeln + Lehrmethoden bestätigen, Vorschau des Steckbriefs | Zurück/Weiter, Abschicken → A-10. Eingaben bleiben beim Zurückgehen erhalten | Persona Nils als Tutor, `wz*` |
 | S-21 | Status | Schritte: abgeschickt → Gespräch → Entscheidung (erledigt/jetzt/offen), Gesprächstermin und Ort. Bei `rejected`: Grund, „neu bewerben ab {Datum}“, Einspruch. Bei `appeal`: „Wird geprüft“. Bei `finalRejected`: Hinweis nächstes Schuljahr | Bewerbung zurückziehen A-12, Einspruch (Blatt, 500 Zeichen) A-14, später „Neu bewerben“ | Persona Paul, Tab Status |
 | S-22 | Lehrmethoden | 9 Methoden (TEXTE.md §Lehrmethoden) zum Abhaken, Zähler | Abhaken A-13 (schnell, ohne Toast) | Tab Lehrmethoden |
 | S-23 | Steckbrief (Vorschau) | So sehen andere ihn. Ab `interview` mit Schloss-Hinweis gesperrt (R-22) | Ändern (öffnet Assistent mit Daten) A-11 | Tab Steckbrief |
@@ -248,5 +248,5 @@ Text immer neutral (R-82). Versand durch Flow F-90 (Helfer), aufgerufen aus den 
 - Keine Gruppen-Wunschliste (Version 2: Schüler wünschen sich ein Thema, Tutoren sehen die Nachfrage).
 - Kein Wechsel einer Gruppe in eine Einzel-Nachhilfe (dafür normale Anfrage stellen).
 - Kein Chat in der App, außer O-20 verlangt es (dann Version 1.1: einfaches Nachrichtenfeld pro Nachhilfe, Aktion A-29).
-- Keine Bescheinigung als PDF aus der App. Die Lehrkraft bekommt die bestätigten Stunden als Liste (Version 1.1, F-24).
+- Keine Bescheinigung als PDF aus der App. Die Bescheinigung bestätigt nur, dass jemand Tutor war (D-32, Version 1.1, F-24).
 - Keine Fotos, keine Bewertungen mit Sternen.

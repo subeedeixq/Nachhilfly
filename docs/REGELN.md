@@ -51,7 +51,7 @@
 | R-22 | Der Steckbrief-Entwurf ist änderbar, solange die Bewerbung `submitted` ist. Ab `interview` gesperrt bis zur Entscheidung. Lehrmethoden kann man jederzeit lesen und abhaken. | App + Flow | – |
 | R-23 | Kurztext höchstens 200 Zeichen. Keine Kontaktdaten und Links: Flow lehnt ab, wenn er `@`, `http`, `www.`, eine Telefonnummer (6+ Ziffern, auch mit Leerzeichen) oder „insta“, „snap“, „whatsapp“, „tiktok“ enthält (E-CONTACT). | App + Flow | – |
 | R-24 | Stufen (`5-6`, `7-8`, `9-10`, `KS`) frei wählbar, auch die eigene Stufe und höhere. Ob es passt, klärt das Leitungsteam im Gespräch. Format `elsewhere` im Steckbrief nur, wenn der Tutor selbst R-16 erfüllt. (Die frühere Grenze „nur Stufen unter der eigenen Klasse“ ist abgeschafft, D-26.) | App + Flow | – |
-| R-25 | Online-Zeiten nur Montag bis Freitag und nur in Zeitfenstern, die bis `{onlineUntil}` Uhr enden (Standard 19). | App + Flow | `onlineUntil` |
+| R-25 | Zeiten: Montag bis Freitag, alle Zeitfenster aus DATENMODELL.md §6 für jedes Format wählbar. Keine besondere Grenze für online oder andere Orte (D-29). | App + Flow | – |
 | R-26 | Plätze (feste Schüler insgesamt) 1 bis 5. | App + Flow | – |
 | R-27 | Ablehnung nur mit Grund (Pflichtfeld). Neu bewerben frühestens `{reapplyDays}` Tage danach (Standard 7). | App + Flow | `reapplyDays` |
 | R-28 | Einspruch: einmal pro Bewerbung, sofort möglich, Begründung Pflicht. „Endgültig abgelehnt“ (`finalRejected`) heißt: neu bewerben erst im nächsten Schuljahr. | App + Flow | – |
@@ -81,7 +81,7 @@
 | R-46 | Annehmen nur, wenn ein Platz frei ist. Der Flow zählt neu (Flow mit Gleichzeitigkeit 1, E-FULL). | Flow | – |
 | R-47 | Nachricht in der Anfrage: freiwillig, höchstens 300 Zeichen, Hinweis „Keine Noten, keine Gesundheit, keine Kontaktdaten“. Anliegen nur aus der festen Auswahl. Zeiten nur aus den Zeiten des Tutors. Wunsch-Orte (mind. einer) nur aus den Formaten des Tutors und nach R-12/R-16. | App + Flow | – |
 | R-48 | Finden zeigt Steckbriefe mit `Visible = ja`, ohne den eigenen, nur Tutoren, die die eigene Klasse unterrichten. Volle oder pausierte Tutoren erscheinen **ausgegraut** am Ende der Liste („gerade keine Plätze“ bzw. „macht gerade Pause“), Anfrage gesperrt. Ausgesetzte, gesperrte, aufgehörte Tutoren sind unsichtbar (`Visible = nein`). | App + Flow | – |
-| R-49 | Für Nehmende öffnet Finden erst, wenn mindestens `{minTutorsToOpen}` Tutoren bestätigt sind (Standard 15). Vorher Leerzustand „Bald geht’s los“. Tutoren und Bewerber sehen Finden immer. | App | `minTutorsToOpen` |
+| R-49 | Für Nehmende öffnet Finden erst, wenn mindestens `{minTutorsToOpen}` Tutoren bestätigt sind (Standard 0 = sofort offen, D-30). Vorher Leerzustand „Bald geht’s los“. Gibt es wenige oder keine passenden Tutoren, zeigt Finden den Hinweis, dass laufend neue dazukommen. Tutoren und Bewerber sehen Finden immer. | App | `minTutorsToOpen` |
 
 ## 6. Nachhilfe und Stunden
 | ID | Regel | Durch | Wert |
@@ -122,7 +122,7 @@
 | R-80 | Neben jedem Freitextfeld: „Keine Noten, keine Gesundheit, keine Kontaktdaten.“ Zeichenlimits: Kurztext 200, Nachricht 300, Ablehnungsgrund 300, Einspruch 500, Meldung 1000. | App + Flow | – |
 | R-81 | **Löschfristen** (Flow F-22): Eingang 30 Tage nach Verarbeitung · abgelehnte/zurückgezogene Bewerbungen zum Schuljahresende · Anfragen ohne Nachhilfe (`declined`, `expired`, `withdrawn`) 3 Monate nach Ende · Nachhilfen mit Stunden zum Schuljahresende nach Erstellung der Bescheinigungen · Meldungen und Protokoll nach 1 Jahr · Profile und Steckbriefe beim Austritt oder Schulabgang · Gruppen und Teilnahmen: mit bestätigten Terminen zum Schuljahresende, sonst 3 Monate nach Ende. Papierkorb wird mitgeleert. | Flow | – |
 | R-82 | Benachrichtigungen sind neutral: „Neues in nachhilfly“ plus Link. Kein Fach, keine Klasse, kein Name im Text (Sperrbildschirm). Weg: Teams-Nachricht vom Flow-Bot, sonst E-Mail (O-21). | Flow | – |
-| R-83 | Rückmeldung „passt / passt nicht“ nach der Probestunde und beim Beenden: freiwillig, sieht nur die Lehrkraft (steht im Protokoll, nicht in der Nachhilfe). | Flow | – |
+| R-83 | Rückmeldung „passt / passt nicht“ nach der Probestunde und beim Beenden: freiwillig, steht im Protokoll. „passt nicht“ sieht nur das Leitungsteam. „passt“ bekommt zusätzlich der Tutor als Nachricht, ohne Freitext (D-31). | Flow | – |
 | R-84 | Flows prüfen vor jedem Schritt, ob beteiligte Konten noch existieren. Fehlt ein Konto, gilt R-57 bzw. die Nachhilfe endet; der Flow läuft nicht ins Leere. | Flow | – |
 | R-85 | Jede Entscheidung und jede Statusänderung kommt ins Protokoll (`NhLog`): wer, was, wann, worauf. | Flow | – |
 | R-86 | Schlägt ein Flow fehl: Eingang-Eintrag `error`, Mail an Lehrkraft und Entwickler, App zeigt E-SERVER. | Flow | – |

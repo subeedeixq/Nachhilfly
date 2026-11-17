@@ -78,10 +78,9 @@
 ## 3. Verhaltenskodex und Datenschutz
 **Verhaltenskodex** (`kodex`, Liste, Reihenfolge fest):
 1. Ihr trefft euch in der Schule, online über Teams oder an einem Ort, den ihr gemeinsam absprecht (z. B. zuhause oder in der Bücherei). Bis Klasse 8 außerhalb der Schule nur, wenn deine Eltern das erlaubt haben. (Entwurf, O-36)
-2. Online nur Montag bis Freitag bis {onlineUntil} Uhr.
-3. Die Kamera ist freiwillig. Keine Aufnahmen.
-4. Kein Kontakt über Instagram, WhatsApp, Snapchat und keine privaten Nummern.
-5. Geld nur nach der Stunde, nie im Voraus. Die Probestunde ist kostenlos.
+2. Die Kamera ist freiwillig. Keine Aufnahmen.
+3. Kein Kontakt über Instagram, WhatsApp, Snapchat und keine privaten Nummern.
+4. Geld nur nach der Stunde, nie im Voraus. Die Probestunde ist kostenlos.
 
 | Schlüssel | Text |
 |---|---|
@@ -174,6 +173,7 @@ Ablauf (10 Min): Begrüßen, Ablauf erklären (1) · Warum willst du Nachhilfe g
 |---|---|---|---|
 | `empty.noTutorsYet` | Bald geht’s los! | Die ersten Tutoren werden gerade bestätigt. | Selbst Tutor werden |
 | `empty.filter` | Kein Tutor passt | Probier es mit weniger Filtern. | Filter zurücksetzen |
+| `empty.growing` | Es kommen laufend neue Tutoren dazu | Schau bald wieder vorbei. Vielleicht ist dann jemand für dich dabei. (Entwurf, D-30) | – |
 | `empty.mine` | Noch keine Nachhilfe | Such dir einen Tutor aus. Die erste Stunde ist immer kostenlos. | Tutor finden |
 | `empty.requests` | Keine neuen Anfragen | Dein Steckbrief ist sichtbar. Sobald jemand anfragt, bekommst du Bescheid. | – |
 | `empty.requestsPaused` | Keine neuen Anfragen | Du machst gerade Pause. | – |

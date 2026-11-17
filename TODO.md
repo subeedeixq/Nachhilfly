@@ -5,13 +5,13 @@
 Phasen 3 und 7 (Listen, Flows) können parallel zu 4–6 laufen, sobald Phase 2 durch ist.
 
 ## Jetzt
-- Stand: Starter-Kit angelegt (15.11.2026), ergänzt am selben Tag: Ort frei (D-25), keine Klassengrenze (D-26), Gruppennachhilfe (D-27). Nächste Aufgabe: T-0.1.
-- Notizen der letzten Sitzung: T-0.2 erledigt (16.11.2026): Mac, Node 26.13.1, SPFx 1.24.1, CLI über npx, doctor grün, SPFx-Skill im Repo.
+- Stand: Starter-Kit angelegt (15.11.2026), ergänzt am selben Tag: Ort frei (D-25), keine Klassengrenze (D-26), Gruppennachhilfe (D-27). Nächste Aufgabe: T-0.3.
+- Notizen der letzten Sitzung: T-0.1 erledigt (17.11.2026): neue Entscheidungen D-28 … D-32 (Subi = Leitung + Lehrkraft, keine Online-Zeitgrenze, Finden sofort offen, Rückmeldung, Bescheinigung). Neu offen: O-38 (Eltern informieren), O-39 (Datenschutz zu D-28, Herrn Scharf fragen). Die Mail in T-0.3 soll O-39 und O-09/O-35 mit ansprechen.
 
 ---
 
 ## Phase 0 – Vorbereitung (Subi + IT, ohne Code)
-- [ ] **T-0.1** 🧑🤖 Offene Punkte durchgehen. Lesen: ENTSCHEIDUNGEN.md §1, §3. Tun: Claude fragt Subi Punkt für Punkt, was bei den Freigaben schon entschieden wurde, und trägt Ergebnisse ein. Fertig wenn: jede O-Zeile hat ein Ergebnis oder „offen, Standard gilt“.
+- [x] **T-0.1** 🧑🤖 Offene Punkte durchgehen. Lesen: ENTSCHEIDUNGEN.md §1, §3. Tun: Claude fragt Subi Punkt für Punkt, was bei den Freigaben schon entschieden wurde, und trägt Ergebnisse ein. Fertig wenn: jede O-Zeile hat ein Ergebnis oder „offen, Standard gilt“.
 - [x] **T-0.2** 🧑🤖 Computer einrichten. Lesen: SETUP.md §1–§5. Fertig wenn: `m365 spfx doctor` ohne Fehler, `claude` startet im Projekt, Git-Repo auf GitHub (privat) mit erstem Commit.
 - [ ] **T-0.3** 🏫 Testseite, App-Katalog, Gruppen, Testkonten, Funktionskonto. Lesen: SETUP.md §6. Tun: Claude schreibt Subi eine kurze Mail an Frau Hilchentwort mit der Checkliste. Fertig wenn: Testseiten-Adresse in `app/src/config.ts` (nach T-1.1) bzw. hier notiert, Testkonten vorhanden.
 - [ ] **T-0.4** 🧑 Auf der Testseite eine leere Seite „App“ anlegen (dort kommt später der Webpart drauf) und prüfen, dass Subi Dateien in den App-Katalog der Testseite hochladen darf.
@@ -101,5 +101,5 @@ Für jeden Flow: `/flow-anleitung F-xx` → Anleitung + Testtabelle in `flows/an
 - [ ] **T-10.2** 🤖 `config.ts` für die echte Website, Version 1.0.0.0, Paket bauen, Git-Tag `v1.0.0`.
 - [ ] **T-10.3** 🏫🧑 Flows auf die echte Website umstellen (Listen-Adressen), Besitzer und Verbindungen auf das Funktionskonto (FLOWS.md §1).
 - [ ] **T-10.4** 🏫 Paket in den App-Katalog der Schule, mit Teams synchronisieren, im Teams Admin Center freigeben und anheften (O-24).
-- [ ] **T-10.5** 🧑 Startwelle: 15–20 Tutoren bewerben sich und werden bestätigt, dann Elternbrief und Öffnen für Nehmende (R-49).
+- [ ] **T-10.5** 🧑 Startwelle: möglichst viele Tutoren bewerben sich und werden bestätigt, dann Elternbrief und Werbung (O-38). Finden ist für Nehmende sofort offen (D-30, R-49).
 - [ ] **T-10.6** 🤖 Betriebshandbuch `docs/BETRIEB.md`: bauen, ausliefern, Flows, Rollen jedes Jahr neu besetzen, Not-Aus, häufige Fehler, Übergabe an Nachfolger (O-26), Code-Konto (O-25).
